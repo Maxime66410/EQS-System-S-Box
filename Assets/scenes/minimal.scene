@@ -284,12 +284,14 @@
           "UpdateRotation": true
         },
         {
-          "__type": "Sandbox.Eqsquery",
-          "__guid": "a6d9b749-ff13-4047-a11e-402571b558cf",
+          "__type": "Sandbox.EqsQuery",
+          "__guid": "78180da1-e488-4534-837d-685306f676fb",
           "bDebugMode": true,
+          "bUse2D": true,
           "NewLocationToMove": "0,0,0",
           "Origin": "0,0,0",
           "Radius": 100,
+          "Step": 10,
           "Tests": []
         }
       ]
