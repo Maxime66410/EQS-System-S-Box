@@ -1,0 +1,118 @@
+{
+  "RootObject": {
+    "__guid": "db21e1cd-ffc9-4d14-829e-a90f29db7a2d",
+    "Flags": 0,
+    "Name": "eqsagent",
+    "Enabled": true,
+    "Components": [
+      {
+        "__type": "Sandbox.SkinnedModelRenderer",
+        "__guid": "ddf4b04a-f13d-432c-b53d-05c92c54325c",
+        "BodyGroups": 341,
+        "CreateAttachments": false,
+        "CreateBoneObjects": false,
+        "Model": "models/citizen/citizen.vmdl",
+        "Morphs": {},
+        "Parameters": {
+          "bools": {},
+          "ints": {},
+          "floats": {},
+          "vectors": {},
+          "rotations": {}
+        },
+        "RenderOptions": {
+          "GameLayer": true,
+          "OverlayLayer": false,
+          "BloomLayer": false,
+          "AfterUILayer": false
+        },
+        "RenderType": "On",
+        "Sequence": {
+          "Name": null
+        },
+        "Tint": "1,1,1,1",
+        "UseAnimGraph": true
+      },
+      {
+        "__type": "Sandbox.CapsuleCollider",
+        "__guid": "c5bd6e8e-fe25-4903-87aa-7c55983d2860",
+        "End": "0,0,60",
+        "IsTrigger": false,
+        "Radius": 9.422288,
+        "Start": "0,0,10",
+        "Static": false,
+        "SurfaceVelocity": "0,0,0"
+      },
+      {
+        "__type": "Sandbox.Citizen.CitizenAnimationHelper",
+        "__guid": "2658d473-4b18-4858-9882-a98f546ca6da",
+        "BodyWeight": 1,
+        "EyesWeight": 1,
+        "HeadWeight": 1,
+        "LookAtEnabled": true,
+        "Target": {
+          "_type": "component",
+          "component_id": "ddf4b04a-f13d-432c-b53d-05c92c54325c",
+          "go": "db21e1cd-ffc9-4d14-829e-a90f29db7a2d",
+          "component_type": "SkinnedModelRenderer"
+        }
+      },
+      {
+        "__type": "Sandbox.NavMeshAgent",
+        "__guid": "86a5386e-d529-4198-b052-6602e8de219e",
+        "Acceleration": 50,
+        "Height": 71.30006,
+        "MaxSpeed": 120,
+        "Radius": 12.799963,
+        "Separation": 0.2,
+        "UpdatePosition": true,
+        "UpdateRotation": true
+      },
+      {
+        "__type": "Sandbox.EqsQuery",
+        "__guid": "78180da1-e488-4534-837d-685306f676fb",
+        "bDebugMode": true,
+        "bUse2D": true,
+        "DesiredDistance": 50,
+        "NewLocationToMove": "0,0,0",
+        "Origin": "0,0,0",
+        "Radius": 100,
+        "Step": 10,
+        "StopDistance": 30,
+        "Tests": []
+      }
+    ],
+    "Children": [],
+    "__variables": [],
+    "__properties": {
+      "FixedUpdateFrequency": 50,
+      "MaxFixedUpdates": 5,
+      "NetworkFrequency": 30,
+      "NetworkInterpolation": true,
+      "PhysicsSubSteps": 1,
+      "ThreadedAnimation": true,
+      "TimeScale": 1,
+      "UseFixedUpdate": true,
+      "Metadata": {},
+      "NavMesh": {
+        "Enabled": false,
+        "IncludeStaticBodies": true,
+        "IncludeKeyframedBodies": true,
+        "EditorAutoUpdate": true,
+        "AgentHeight": 64,
+        "AgentRadius": 16,
+        "AgentStepSize": 18,
+        "AgentMaxSlope": 40,
+        "ExcludedBodies": "",
+        "IncludedBodies": ""
+      }
+    }
+  },
+  "ShowInMenu": false,
+  "MenuPath": null,
+  "MenuIcon": null,
+  "DontBreakAsTemplate": false,
+  "ResourceVersion": 1,
+  "__references": [],
+  "__version": 1
+}

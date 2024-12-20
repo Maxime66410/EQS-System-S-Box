@@ -18,11 +18,15 @@ namespace Sandbox
         [Property, Range(1.0f, 50.0f)] public float Step { get; set; } = 10f;  // Step - default 10 : Step is the distance between each point
         
         [Property, Range(1.0f, 500.0f)] public float DesiredDistance { get; set; } = 50f; // Desired distance - default 50 : Distance to the target
+        
+        [Property, Range(1.0f, 50.0f)] public float StopDistance { get; set; } = 30f; // Stop distance - default 15 : Distance to stop
+
         [Property] public List<EqsTest> Tests { get; set; } = new List<EqsTest>(); // List of tests
 
         private NavMeshAgent _agent; // NavMeshAgent
         private CitizenAnimationHelper _animationHelper; // CitizenAnimationHelper
         private List<(Vector3 Point, float Score)> _cachedResults = new(); // Cached results
+        
 
         // Execute the query : Generate points, evaluate points with scores and return the results
         public List<(Vector3 Point, float Score)> Execute()
@@ -196,11 +200,16 @@ namespace Sandbox
                 DebugOverlay.Text((Origin + NewLocationToMove) / 2 + new Vector3(0, 0, 10), $"Distance: {(_agent.WorldPosition - NewLocationToMove).Length}", 10.0f, 0.0f, Color.Blue);
                 DebugOverlay.Text(Origin + new Vector3(0, 0, 100), $"Move To: {(NewLocationToMove)}", 10.0f, 0.0f, Color.Yellow);
             }
+            
+            if(_animationHelper.IsValid()) _animationHelper.WithVelocity(_agent.Velocity); // Update the velocity of the entity
 
-            if (_agent.IsValid() && NewLocationToMove.IsNearlyZero() == false) // Move the entity to the new location (Is working like this ?)
+            if ( _agent.IsValid() )
             {
-                _agent.MoveTo(NewLocationToMove);
-                _animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Walk;
+	            if((_agent.WorldPosition - NewLocationToMove).Length <= StopDistance)
+	            {
+		            _agent.Stop();
+		            _agent.Velocity = Vector3.Zero;
+	            }
             }
         }
 
@@ -261,8 +270,9 @@ namespace Sandbox
 			if (_agent != null) // Move the entity to the selected point
 			{
 				NewLocationToMove = selectedPoint;
-				_agent.MoveTo(selectedPoint);
-				_animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Walk;
+				_agent.MoveTo(NewLocationToMove);
+				_animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Run;
+				_animationHelper.WithVelocity(_agent.Velocity);
 			}
 			else
 			{
