@@ -16,6 +16,8 @@ namespace Sandbox
         [Property, Range(0.0f, 500.0f)] public float Radius { get; set; } =	100f; // Rayon de recherche
         
         [Property, Range(1.0f, 50.0f)] public float Step { get; set; } = 10f; // Distance entre les points générés
+        
+        [Property, Range(1.0f, 500.0f)] public float DesiredDistance { get; set; } = 50f; // Distance souhaitée
         [Property] public List<EqsTest> Tests { get; set; } = new List<EqsTest>();
 
         private NavMeshAgent _agent;
@@ -145,28 +147,30 @@ namespace Sandbox
             _agent = GetComponent<NavMeshAgent>();
             _animationHelper = GetComponent<CitizenAnimationHelper>();
 
-            Tests.Add(new VisibilityTest(Origin));
-            Tests.Add(new DistanceTest(Origin, 100.0f));
-
-            var results = Execute();
-            var selectedPoint = SelectPointBasedOnProbability(results);
-
-            if (bDebugMode)
-            {
-                VisualizeResults(results);
-            }
-
-            if (_agent != null)
-            {
-                NewLocationToMove = selectedPoint;
-                _agent.MoveTo(selectedPoint);
-                _animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Walk;
-            }
-            else
-            {
-                Log.Error("No NavMeshAgent found on the entity");
-            }
+            if (!_agent.IsValid())
+			{
+				Log.Error("No NavMeshAgent found on the entity");
+			}
+            
+            if(!_animationHelper.IsValid())
+			{
+				Log.Error("No CitizenAnimationHelper found on the entity");
+			}
         }
+        
+        protected override void OnStart()
+		{
+			// Example of custom parameters
+			var customParams = new Dictionary<string, object>
+			{
+				{ "MaxIterations", 500 },
+				{ "DebugColor", Color.Blue },
+				{ "Radius", 250.0f },
+				{ "Priority", "High" }
+			};
+			
+			ExecuteQuery(new VisibilityTest(Origin), new DistanceTest(Origin, DesiredDistance), customParams);
+		}
 
         protected override void OnUpdate()
         {
@@ -189,13 +193,76 @@ namespace Sandbox
             }
         }
 
+        public void ExecuteQuery(VisibilityTest visibilityTest = null, DistanceTest distanceTest = null, Dictionary<string, object> customParams = null)
+		{
+			Tests.Clear();
+			
+			if (visibilityTest != null)
+			{
+				Tests.Add(visibilityTest);
+			}
+			else
+			{
+				Tests.Add(new VisibilityTest(Origin));
+				Log.Warning("No VisibilityTest provided, using default");
+			}
+			
+			if (distanceTest != null)
+			{
+				Tests.Add(distanceTest);
+			}
+			else
+			{
+				Tests.Add(new DistanceTest(Origin, DesiredDistance));
+				Log.Warning("No DistanceTest provided, using default");
+			}
+			
+			// Custom params
+			if (customParams != null && customParams.ContainsKey("VisibilityOrigin") && customParams["VisibilityOrigin"] is Vector3 visibilityOrigin)
+			{
+				Tests.Add(new VisibilityTest(visibilityOrigin));
+			}
+
+			if (customParams != null && customParams.ContainsKey("DesiredDistance") && customParams["DesiredDistance"] is float desiredDistance)
+			{
+				Tests.Add(new DistanceTest(Origin, desiredDistance));
+			}
+			
+			if (customParams != null)
+			{
+				foreach (var parameter in customParams)
+				{
+					Log.Info($"Custom Parameter: {parameter.Key} = {parameter.Value}"); // Debug FOR THE MOMENT
+				}
+			}
+			
+			var results = Execute();
+			var selectedPoint = SelectPointBasedOnProbability(results);
+
+			if (bDebugMode)
+			{
+				VisualizeResults(results);
+			}
+
+			if (_agent != null)
+			{
+				NewLocationToMove = selectedPoint;
+				_agent.MoveTo(selectedPoint);
+				_animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Walk;
+			}
+			else
+			{
+				Log.Error("No NavMeshAgent found on the entity");
+			}
+		}
+
         private void VisualizeResults(List<(Vector3 Point, float Score)> results)
         {
             foreach (var (point, score) in results)
             {
                 Color pointColor = Color.Lerp(Color.Red, Color.Green, score);
                 DebugOverlay.Sphere(Sphere.Unit, pointColor, 5.0f, new Transform(point), true);
-                DebugOverlay.Text(point + Vector3.Up * 5, $"Score: {score:0.00}", 5.0f);
+                DebugOverlay.Text(point + Vector3.Up * 2, $"Score: {score:0.00}", 5.0f, 0.0f, Color.White, 5.0f);
             }
         }
     }

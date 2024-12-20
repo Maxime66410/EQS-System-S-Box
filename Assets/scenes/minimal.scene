@@ -288,6 +288,7 @@
           "__guid": "78180da1-e488-4534-837d-685306f676fb",
           "bDebugMode": true,
           "bUse2D": true,
+          "DesiredDistance": 50,
           "NewLocationToMove": "0,0,0",
           "Origin": "0,0,0",
           "Radius": 100,
