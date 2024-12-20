@@ -8,28 +8,30 @@ namespace Sandbox
 {
     public sealed class EqsQuery : Component
     {
-        [Property] public bool bDebugMode { get; set; } = false;
-		[Property] public bool bUse2D { get; set; } = true; // Utilisation en 2D ou 3D
-        [Property] public Vector3 Origin { get; set; }
-        [Property] public Vector3 NewLocationToMove { get; set; }
+        [Property] public bool bDebugMode { get; set; } = false; // Debug mode
+		[Property] public bool bUse2D { get; set; } = true; // 2D or 3D
+        [Property] public Vector3 Origin { get; set; } // Origin point
+        [Property] public Vector3 NewLocationToMove { get; set; } // New location to move
 
-        [Property, Range(0.0f, 500.0f)] public float Radius { get; set; } =	100f; // Rayon de recherche
+        [Property, Range(0.0f, 500.0f)] public float Radius { get; set; } =	100f; // Radius - default 100 : Radius of the sphere
         
-        [Property, Range(1.0f, 50.0f)] public float Step { get; set; } = 10f; // Distance entre les points générés
+        [Property, Range(1.0f, 50.0f)] public float Step { get; set; } = 10f;  // Step - default 10 : Step is the distance between each point
         
-        [Property, Range(1.0f, 500.0f)] public float DesiredDistance { get; set; } = 50f; // Distance souhaitée
-        [Property] public List<EqsTest> Tests { get; set; } = new List<EqsTest>();
+        [Property, Range(1.0f, 500.0f)] public float DesiredDistance { get; set; } = 50f; // Desired distance - default 50 : Distance to the target
+        [Property] public List<EqsTest> Tests { get; set; } = new List<EqsTest>(); // List of tests
 
-        private NavMeshAgent _agent;
-        private CitizenAnimationHelper _animationHelper;
-        private List<(Vector3 Point, float Score)> _cachedResults = new();
+        private NavMeshAgent _agent; // NavMeshAgent
+        private CitizenAnimationHelper _animationHelper; // CitizenAnimationHelper
+        private List<(Vector3 Point, float Score)> _cachedResults = new(); // Cached results
 
+        // Execute the query : Generate points, evaluate points with scores and return the results
         public List<(Vector3 Point, float Score)> Execute()
         {
-            List<Vector3> potentialPoints = bUse2D ? GeneratePoints2D() : GeneratePoints3D();
-            return EvaluatePointsWithScores(potentialPoints);
+            List<Vector3> potentialPoints = bUse2D ? GeneratePoints2D() : GeneratePoints3D(); // Generate points
+            return EvaluatePointsWithScores(potentialPoints); // Evaluate points with scores
         }
 
+        // Generate points Based on 2D or 3D mode (Deprecated)
         private List<Vector3> GeneratePoints()
         {
 	        List<Vector3> points = new List<Vector3>();
@@ -55,32 +57,34 @@ namespace Sandbox
 	        return points;
         }
         
+        // Generate points in 2D mode : Generate points in a 2D circle
         private List<Vector3> GeneratePoints2D()
         {
 	        List<Vector3> points = new List<Vector3>();
-	        for (float x = -Radius; x <= Radius; x += Step)
+	        for (float x = -Radius; x <= Radius; x += Step) // Step is the distance between each point
 	        {
 		        for (float y = -Radius; y <= Radius; y += Step)
 		        {
 			        var point = Origin + new Vector3(x, y, 0);
-			        if ((point - Origin).Length <= Radius)
+			        if ((point - Origin).Length <= Radius) // Check if the point is inside the sphere
 				        points.Add(point);
 		        }
 	        }
 	        return points;
         }
 
+        // Generate points in 3D mode : Generate points in a sphere
         private List<Vector3> GeneratePoints3D()
         {
 	        List<Vector3> points = new List<Vector3>();
-	        for (float x = -Radius; x <= Radius; x += Step)
+	        for (float x = -Radius; x <= Radius; x += Step) // Step is the distance between each point
 	        {
 		        for (float y = -Radius; y <= Radius; y += Step)
 		        {
 			        for (float z = -Radius; z <= Radius; z += Step)
 			        {
 				        var point = Origin + new Vector3(x, y, z);
-				        if ((point - Origin).Length <= Radius)
+				        if ((point - Origin).Length <= Radius) // Check if the point is inside the sphere
 					        points.Add(point);
 			        }
 		        }
@@ -88,51 +92,54 @@ namespace Sandbox
 	        return points;
         }
 
+        // Evaluate points with scores : Evaluate each point and normalize the scores
         private List<(Vector3 Point, float Score)> EvaluatePointsWithScores(List<Vector3> points)
         {
             var scoredPoints = new List<(Vector3 Point, float Score)>();
 
-            foreach (var point in points)
+            foreach (var point in points) // Evaluate each point
             {
                 float totalScore = 0.0f;
-                float totalWeight = Tests.Sum(test => test.Weight);
+                float totalWeight = Tests.Sum(test => test.Weight); // Sum of the weights
 
                 foreach (var test in Tests)
                 {
-                    totalScore += test.GetScore(point) * test.Weight;
+                    totalScore += test.GetScore(point) * test.Weight; // Get the score of the point
                 }
 
-                totalScore /= totalWeight > 0 ? totalWeight : 1.0f; // Normalisation par poids total
-                scoredPoints.Add((point, totalScore));
+                totalScore /= totalWeight > 0 ? totalWeight : 1.0f; // Normalize the score
+                scoredPoints.Add((point, totalScore)); // Add the point and the score
             }
 
             NormalizeScores(scoredPoints);
-            scoredPoints = scoredPoints.Where(p => p.Score > 0.1f).ToList(); // Filtrage des scores faibles
+            scoredPoints = scoredPoints.Where(p => p.Score > 0.1f).ToList(); // Filter the points with a score > 0.1
 
             return scoredPoints;
         }
 
+        // Normalize the scores : Get the max score and normalize the scores
         private void NormalizeScores(List<(Vector3 Point, float Score)> scoredPoints)
         {
-            float maxScore = scoredPoints.Max(p => p.Score);
+            float maxScore = scoredPoints.Max(p => p.Score); // Get the max score
 
-            for (int i = 0; i < scoredPoints.Count; i++)
+            for (int i = 0; i < scoredPoints.Count; i++) // Normalize the scores
             {
-                var (point, score) = scoredPoints[i];
-                scoredPoints[i] = (point, maxScore > 0 ? score / maxScore : 0.0f);
+                var (point, score) = scoredPoints[i]; // Get the point and the score
+                scoredPoints[i] = (point, maxScore > 0 ? score / maxScore : 0.0f); // Normalize the score
             }
         }
 
+        // Select a point based on the probability : Select a point based on the scores
         private Vector3 SelectPointBasedOnProbability(List<(Vector3 Point, float Score)> scoredPoints)
         {
-            float totalScore = scoredPoints.Sum(p => p.Score);
-            float randomValue = Game.Random.Float(0.0f, totalScore);
+            float totalScore = scoredPoints.Sum(p => p.Score); // Sum of the scores
+            float randomValue = Game.Random.Float(0.0f, totalScore); // Random value
 
-            float cumulativeScore = 0.0f;
-            foreach (var (point, score) in scoredPoints)
+            float cumulativeScore = 0.0f; // Cumulative score
+            foreach (var (point, score) in scoredPoints) // Select the point based on the scores
             {
                 cumulativeScore += score;
-                if (randomValue <= cumulativeScore)
+                if (randomValue <= cumulativeScore) // Select the point
                 {
                     return point;
                 }
@@ -141,6 +148,7 @@ namespace Sandbox
             return scoredPoints.First().Point; // Fallback
         }
 
+        // Awake : Called when the entity is created
         protected override void OnAwake()
         {
             Origin = this.WorldPosition;
@@ -158,6 +166,7 @@ namespace Sandbox
 			}
         }
         
+        // Start : Called when the entity is started
         protected override void OnStart()
 		{
 			// Example of custom parameters
@@ -169,14 +178,16 @@ namespace Sandbox
 				{ "Priority", "High" }
 			};
 			
+			// Execute the query
 			ExecuteQuery(new VisibilityTest(Origin), new DistanceTest(Origin, DesiredDistance), customParams);
 		}
 
+        // Update : Called every frame
         protected override void OnUpdate()
         {
 	        Origin = this.WorldPosition;
 	        
-            if (bDebugMode)
+            if (bDebugMode) // Debug mode
             {
                 DebugOverlay.Box(Origin + new Vector3(0, 0, 35), new Vector3(15.0f, 15.0f, 65.0f), Color.Green);
                 DebugOverlay.Line(_agent.WorldPosition, NewLocationToMove, Color.Green, 0.0f);
@@ -186,18 +197,19 @@ namespace Sandbox
                 DebugOverlay.Text(Origin + new Vector3(0, 0, 100), $"Move To: {(NewLocationToMove)}", 10.0f, 0.0f, Color.Yellow);
             }
 
-            if (_agent.IsValid() && NewLocationToMove.IsNearlyZero() == false)
+            if (_agent.IsValid() && NewLocationToMove.IsNearlyZero() == false) // Move the entity to the new location (Is working like this ?)
             {
                 _agent.MoveTo(NewLocationToMove);
                 _animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Walk;
             }
         }
 
+        // Execute the query : Generate points, evaluate points with scores and return the results
         public void ExecuteQuery(VisibilityTest visibilityTest = null, DistanceTest distanceTest = null, Dictionary<string, object> customParams = null)
 		{
 			Tests.Clear();
 			
-			if (visibilityTest != null)
+			if (visibilityTest != null) // Add the visibility test
 			{
 				Tests.Add(visibilityTest);
 			}
@@ -207,7 +219,7 @@ namespace Sandbox
 				Log.Warning("No VisibilityTest provided, using default");
 			}
 			
-			if (distanceTest != null)
+			if (distanceTest != null) // Add the distance test
 			{
 				Tests.Add(distanceTest);
 			}
@@ -217,17 +229,19 @@ namespace Sandbox
 				Log.Warning("No DistanceTest provided, using default");
 			}
 			
-			// Custom params
+			// Custom params from VisibilityOrigin
 			if (customParams != null && customParams.ContainsKey("VisibilityOrigin") && customParams["VisibilityOrigin"] is Vector3 visibilityOrigin)
 			{
 				Tests.Add(new VisibilityTest(visibilityOrigin));
 			}
 
+			// Custom params from DesiredDistance
 			if (customParams != null && customParams.ContainsKey("DesiredDistance") && customParams["DesiredDistance"] is float desiredDistance)
 			{
 				Tests.Add(new DistanceTest(Origin, desiredDistance));
 			}
 			
+			// Full custom params : is for better request mode for better results & AI
 			if (customParams != null)
 			{
 				foreach (var parameter in customParams)
@@ -236,15 +250,15 @@ namespace Sandbox
 				}
 			}
 			
-			var results = Execute();
-			var selectedPoint = SelectPointBasedOnProbability(results);
+			var results = Execute(); // Execute the query
+			var selectedPoint = SelectPointBasedOnProbability(results); // Select a point based on the probability
 
-			if (bDebugMode)
+			if (bDebugMode) // Debug mode
 			{
 				VisualizeResults(results);
 			}
 
-			if (_agent != null)
+			if (_agent != null) // Move the entity to the selected point
 			{
 				NewLocationToMove = selectedPoint;
 				_agent.MoveTo(selectedPoint);
@@ -256,6 +270,7 @@ namespace Sandbox
 			}
 		}
 
+        // Visualize the results : Allow to visualize the results
         private void VisualizeResults(List<(Vector3 Point, float Score)> results)
         {
             foreach (var (point, score) in results)
@@ -267,12 +282,14 @@ namespace Sandbox
         }
     }
 
-    public abstract class EqsTest
+    // Extension methods for the EqsQuery
+    public abstract class EqsTest 
     {
-        public float Weight { get; set; } = 1.0f;
-        public abstract float GetScore(Vector3 point);
+        public float Weight { get; set; } = 1.0f; // Weight - default 1 : Weight of the test
+        public abstract float GetScore(Vector3 point); // Get the score of the point
     }
 
+    // Visibility test : Check if the point is visible
     public class VisibilityTest : EqsTest
     {
         private Vector3 _origin;
@@ -282,12 +299,15 @@ namespace Sandbox
             _origin = origin;
         }
 
+        // Get the score of the point
         public override float GetScore(Vector3 point)
         {
-            return Scene.CreateEditorScene().Trace.Ray(_origin, point).Run().Hit ? 0.0f : 1.0f;
+            return Scene.CreateEditorScene().Trace.Ray(_origin, point).Run().Hit ? 0.0f : 1.0f; // Check if the point is visible
         }
     }
 
+    
+    // Distance test : Check the distance between the point and the origin
     public class DistanceTest : EqsTest
     {
         private Vector3 _origin;
@@ -299,19 +319,21 @@ namespace Sandbox
             _desiredDistance = desiredDistance;
         }
 
+        // Get the score of the point
         public override float GetScore(Vector3 point)
         {
-            float distance = (_origin - point).Length;
-            return 1.0f - MathF.Abs(_desiredDistance - distance) / _desiredDistance;
+            float distance = (_origin - point).Length; // Get the distance between the point and the origin
+            return 1.0f - MathF.Abs(_desiredDistance - distance) / _desiredDistance; // Return the score
         }
     }
 
+    // Flatness test : Check if the point is flat
     public class FlatnessTest : EqsTest
     {
         public override float GetScore(Vector3 point)
         {
-            var trace = Scene.CreateEditorScene().Trace.Ray(point, point - Vector3.Up * 10).Run();
-            return trace.Hit && trace.Normal.Dot(Vector3.Up) > 0.9f ? 1.0f : 0.0f;
+            var trace = Scene.CreateEditorScene().Trace.Ray(point, point - Vector3.Up * 10).Run(); // Check if the point is flat
+            return trace.Hit && trace.Normal.Dot(Vector3.Up) > 0.9f ? 1.0f : 0.0f; // Return the score
         }
     }
 }
