@@ -317,7 +317,10 @@ namespace Sandbox
         // Get the score of the point
         public override float GetScore(Vector3 point)
         {
-            return Scene.CreateEditorScene().Trace.Ray(_origin, point).Run().Hit ? 0.0f : 1.0f; // Check if the point is visible
+	        var score = 1.0f;
+	        score = Scene.CreateEditorScene().Trace.Ray(_origin, point).Run().Hit ? 0.0f : 1.0f; // Check if the point is visible
+	        if(Math.Abs(score - 1.0f) < 0.01f) score = Scene.CreateEditorScene().Trace.Ray(point, point - Vector3.Up * 10).Run().Hit ? 1.0f : 0.0f; // Check if the point is not in void
+            return score; // Return the score
         }
     }
 

@@ -278,7 +278,7 @@
           "Height": 71.30006,
           "MaxSpeed": 120,
           "Radius": 12.799963,
-          "Separation": 0.2,
+          "Separation": 0.14,
           "UpdatePosition": true,
           "UpdateRotation": true
         },
@@ -287,11 +287,11 @@
           "__guid": "14f78a80-50d5-44d7-bdee-1745f2f5e2a8",
           "bDebugMode": true,
           "bUse2D": true,
-          "DesiredDistance": 117.43,
+          "DesiredDistance": 186.99,
           "NewLocationToMove": "0,0,0",
           "Origin": "0,0,0",
-          "Radius": 259.09,
-          "Step": 27.28,
+          "Radius": 301.52,
+          "Step": 31.74,
           "StopDistance": 30,
           "Tests": []
         }
