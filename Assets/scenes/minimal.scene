@@ -169,6 +169,7 @@
               "__guid": "d0d7e22c-a3d8-42ee-bb77-a8715f89cdde",
               "Changes": "",
               "Description": "",
+              "SceneTags": "",
               "Title": "minimal"
             }
           ]
@@ -284,7 +285,7 @@
         },
         {
           "__type": "Sandbox.Eqsquery",
-          "__guid": "bb5caee4-d140-48ef-b029-3236daf4c579",
+          "__guid": "a6d9b749-ff13-4047-a11e-402571b558cf",
           "bDebugMode": true,
           "NewLocationToMove": "0,0,0",
           "Origin": "0,0,0",
