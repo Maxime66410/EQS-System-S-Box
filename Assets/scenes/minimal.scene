@@ -218,8 +218,153 @@
       "Position": "27.54473,-9.251751,10.13772",
       "Rotation": "0,0,-1,0.0000001947072",
       "Enabled": true,
-      "__Prefab": "prefab/eqsagent.prefab",
-      "__PrefabVariables": {}
+      "Components": [
+        {
+          "__type": "Sandbox.SkinnedModelRenderer",
+          "__guid": "dde4833a-018d-4e50-9e58-200c95d47dc8",
+          "BodyGroups": 341,
+          "CreateAttachments": false,
+          "CreateBoneObjects": false,
+          "Model": "models/citizen/citizen.vmdl",
+          "Morphs": {},
+          "Parameters": {
+            "bools": {},
+            "ints": {},
+            "floats": {},
+            "vectors": {},
+            "rotations": {}
+          },
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Sequence": {
+            "Name": null
+          },
+          "Tint": "1,1,1,1",
+          "UseAnimGraph": true
+        },
+        {
+          "__type": "Sandbox.CapsuleCollider",
+          "__guid": "e759c110-c404-457c-a8be-348bee7e4ab3",
+          "End": "0,0,60",
+          "IsTrigger": false,
+          "Radius": 9.422288,
+          "Start": "0,0,10",
+          "Static": false,
+          "SurfaceVelocity": "0,0,0"
+        },
+        {
+          "__type": "Sandbox.Citizen.CitizenAnimationHelper",
+          "__guid": "7dd81eb0-a0bf-4545-aabb-26cede84ce27",
+          "BodyWeight": 1,
+          "EyesWeight": 1,
+          "HeadWeight": 1,
+          "LookAtEnabled": true,
+          "Target": {
+            "_type": "component",
+            "component_id": "dde4833a-018d-4e50-9e58-200c95d47dc8",
+            "go": "db21e1cd-ffc9-4d14-829e-a90f29db7a2d",
+            "component_type": "SkinnedModelRenderer"
+          }
+        },
+        {
+          "__type": "Sandbox.NavMeshAgent",
+          "__guid": "13583680-d806-4c30-9999-fa17f2a4dcb4",
+          "Acceleration": 50,
+          "Height": 71.30006,
+          "MaxSpeed": 120,
+          "Radius": 12.799963,
+          "Separation": 0.2,
+          "UpdatePosition": true,
+          "UpdateRotation": true
+        },
+        {
+          "__type": "Sandbox.EqsQuery",
+          "__guid": "14f78a80-50d5-44d7-bdee-1745f2f5e2a8",
+          "bDebugMode": true,
+          "bUse2D": true,
+          "DesiredDistance": 117.43,
+          "NewLocationToMove": "0,0,0",
+          "Origin": "0,0,0",
+          "Radius": 259.09,
+          "Step": 27.28,
+          "StopDistance": 30,
+          "Tests": []
+        }
+      ]
+    },
+    {
+      "__guid": "aff3b265-24a5-42ae-a81f-e9b864f07f00",
+      "Flags": 0,
+      "Name": "Cube (2)",
+      "Position": "86.78438,-125.1242,25.29375",
+      "Rotation": "0,0,0.258819,0.9659258",
+      "Scale": "4.49323,1,2.505611",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "473c08b8-46b5-476f-93e1-0ce8d0948224",
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "Model": "models/dev/box.vmdl",
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        },
+        {
+          "__type": "Sandbox.BoxCollider",
+          "__guid": "e4dc28b9-37b7-484a-a56b-410f68bbb022",
+          "Center": "0,0,0",
+          "IsTrigger": false,
+          "Scale": "43.70005,32,32",
+          "Static": false,
+          "SurfaceVelocity": "0,0,0"
+        }
+      ]
+    },
+    {
+      "__guid": "a1836861-6f3a-4789-ab56-745fdbc4882b",
+      "Flags": 0,
+      "Name": "Cube (1)",
+      "Position": "32.17628,156.1601,25.29375",
+      "Scale": "4.49323,1,2.505611",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "37c8c9d8-7047-4f71-8091-dd7d1e5cd440",
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "Model": "models/dev/box.vmdl",
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        },
+        {
+          "__type": "Sandbox.BoxCollider",
+          "__guid": "a2d30334-755d-4a16-b6a1-c08c97543625",
+          "Center": "0,0,0",
+          "IsTrigger": false,
+          "Scale": "43.70005,32,32",
+          "Static": false,
+          "SurfaceVelocity": "0,0,0"
+        }
+      ]
     },
     {
       "__guid": "4b23908c-6dd6-414f-b7fd-4cc5e755790b",
@@ -242,6 +387,15 @@
           },
           "RenderType": "On",
           "Tint": "1,1,1,1"
+        },
+        {
+          "__type": "Sandbox.BoxCollider",
+          "__guid": "42eea4d2-73a8-4e51-a108-1e4395068c20",
+          "Center": "0,0,0",
+          "IsTrigger": false,
+          "Scale": "32,32,32",
+          "Static": false,
+          "SurfaceVelocity": "0,0,0"
         }
       ]
     }

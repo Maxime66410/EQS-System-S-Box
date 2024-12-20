@@ -209,6 +209,9 @@ namespace Sandbox
 	            {
 		            _agent.Stop();
 		            _agent.Velocity = Vector3.Zero;
+		            
+		            // Recall the query
+		            ExecuteQuery();
 	            }
             }
         }
@@ -278,6 +281,8 @@ namespace Sandbox
 			{
 				Log.Error("No NavMeshAgent found on the entity");
 			}
+			
+			_cachedResults.Add((selectedPoint, results.First(p => p.Point == selectedPoint).Score)); // Add the selected point and the score to the cached results
 		}
 
         // Visualize the results : Allow to visualize the results
