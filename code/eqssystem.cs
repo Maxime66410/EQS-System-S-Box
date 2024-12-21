@@ -19,6 +19,8 @@ namespace Sandbox
         
         [Property, Range(1.0f, 500.0f)] public float DesiredDistance { get; set; } = 50f; // Desired distance - default 50 : Distance to the target
         
+        [Property, Range(0.0f, 1.0f)] public float minScoreThreshold { get; set; } = 0.8f; // Min score threshold - default 0.8 : Min score threshold to select a point
+        
         [Property, Range(1.0f, 50.0f)] public float StopDistance { get; set; } = 30f; // Stop distance - default 15 : Distance to stop
 
         [Property] public List<EqsTest> Tests { get; set; } = new List<EqsTest>(); // List of tests
@@ -64,13 +66,21 @@ namespace Sandbox
         // Generate points in 2D mode : Generate points in a 2D circle
         private List<Vector3> GeneratePoints2D()
         {
-	        List<Vector3> points = new List<Vector3>();
-	        for (float x = -Radius; x <= Radius; x += Step) // Step is the distance between each point
+	        float localRadius = Radius;
+	        
+	        // Check if Tests we are Overriding the Radius
+	        if (Tests.Any(test => test is OverrideRadius))
 	        {
-		        for (float y = -Radius; y <= Radius; y += Step)
+		        localRadius = Tests.First(test => test is OverrideRadius).GetScore(Vector3.Zero);
+	        }
+	        
+	        List<Vector3> points = new List<Vector3>();
+	        for (float x = -localRadius; x <= localRadius; x += Step) // Step is the distance between each point
+	        {
+		        for (float y = -localRadius; y <= localRadius; y += Step)
 		        {
 			        var point = Origin + new Vector3(x, y, 0);
-			        if ((point - Origin).Length <= Radius) // Check if the point is inside the sphere
+			        if ((point - Origin).Length <= localRadius) // Check if the point is inside the sphere
 				        points.Add(point);
 		        }
 	        }
@@ -80,15 +90,23 @@ namespace Sandbox
         // Generate points in 3D mode : Generate points in a sphere
         private List<Vector3> GeneratePoints3D()
         {
-	        List<Vector3> points = new List<Vector3>();
-	        for (float x = -Radius; x <= Radius; x += Step) // Step is the distance between each point
+	        float localRadius = Radius;
+	        
+	        // Check if Tests we are Overriding the Radius
+	        if (Tests.Any(test => test is OverrideRadius))
 	        {
-		        for (float y = -Radius; y <= Radius; y += Step)
+		        localRadius = Tests.First(test => test is OverrideRadius).GetScore(Vector3.Zero);
+	        }
+	        
+	        List<Vector3> points = new List<Vector3>();
+	        for (float x = -localRadius; x <= localRadius; x += Step) // Step is the distance between each point
+	        {
+		        for (float y = -localRadius; y <= localRadius; y += Step)
 		        {
-			        for (float z = -Radius; z <= Radius; z += Step)
+			        for (float z = -localRadius; z <= localRadius; z += Step)
 			        {
 				        var point = Origin + new Vector3(x, y, z);
-				        if ((point - Origin).Length <= Radius) // Check if the point is inside the sphere
+				        if ((point - Origin).Length <= localRadius) // Check if the point is inside the sphere
 					        points.Add(point);
 			        }
 		        }
@@ -134,22 +152,31 @@ namespace Sandbox
         }
 
         // Select a point based on the probability : Select a point based on the scores
-        private Vector3 SelectPointBasedOnProbability(List<(Vector3 Point, float Score)> scoredPoints)
+        private Vector3 SelectPointBasedOnProbability(List<(Vector3 Point, float Score)> scoredPoints, float localminScoreThreshold = 0.8f)
         {
-            float totalScore = scoredPoints.Sum(p => p.Score); // Sum of the scores
-            float randomValue = Game.Random.Float(0.0f, totalScore); // Random value
+	        // Filter the points based on the min score threshold
+	        var filteredPoints = scoredPoints.Where(p => p.Score >= localminScoreThreshold).ToList();
 
-            float cumulativeScore = 0.0f; // Cumulative score
-            foreach (var (point, score) in scoredPoints) // Select the point based on the scores
-            {
-                cumulativeScore += score;
-                if (randomValue <= cumulativeScore) // Select the point
-                {
-                    return point;
-                }
-            }
+	        if (filteredPoints.Count == 0)
+	        {
+		        // If no points are above the threshold, use all points
+		        filteredPoints = scoredPoints;
+	        }
 
-            return scoredPoints.First().Point; // Fallback
+	        float totalScore = filteredPoints.Sum(p => p.Score); // Score total
+	        float randomValue = Game.Random.Float(0.0f, totalScore); // Random value
+
+	        float cumulativeScore = 0.0f; // Cumulative score
+	        foreach (var (point, score) in filteredPoints) // Select a point based on the scores
+	        {
+		        cumulativeScore += score;
+		        if (randomValue <= cumulativeScore)
+		        {
+			        return point;
+		        }
+	        }
+
+	        return filteredPoints.First().Point; // Return the first point
         }
 
         // Awake : Called when the entity is created
@@ -176,10 +203,10 @@ namespace Sandbox
 			// Example of custom parameters
 			var customParams = new Dictionary<string, object>
 			{
-				{ "MaxIterations", 500 },
-				{ "DebugColor", Color.Blue },
-				{ "Radius", 250.0f },
-				{ "Priority", "High" }
+				//{ "TargetObjectWithTag", "player" },
+				//{ "RadiusOverride", 500.0f },
+				//{ "Priority", "High" },
+				//{ "DebugMode", true }
 			};
 			
 			// Execute the query
@@ -219,6 +246,7 @@ namespace Sandbox
         // Execute the query : Generate points, evaluate points with scores and return the results
         public void ExecuteQuery(VisibilityTest visibilityTest = null, DistanceTest distanceTest = null, Dictionary<string, object> customParams = null)
 		{
+			Origin = this.WorldPosition;
 			Tests.Clear();
 			
 			if (visibilityTest != null) // Add the visibility test
@@ -259,11 +287,123 @@ namespace Sandbox
 				foreach (var parameter in customParams)
 				{
 					Log.Info($"Custom Parameter: {parameter.Key} = {parameter.Value}"); // Debug FOR THE MOMENT
+					
+					switch (parameter.Key)
+					{
+						case "Priority": // If the user wants to set the priority to high
+							if (parameter.Value is String highPriority)
+							{
+								if (highPriority == "High")
+								{
+									Log.Info($"High priority set to: {highPriority}");
+									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  2.0f });
+								}
+								else if (highPriority == "Medium")
+								{
+									Log.Info($"Medium priority set to: {highPriority}");
+									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  1.0f });
+								}
+								else if (highPriority == "Low")
+								{
+									Log.Info($"Low priority set to: {highPriority}");
+									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  0.5f });
+								}
+								else
+								{
+									Log.Warning($"Invalid value for 'HighPriority', got {parameter.Value}");
+								}
+							}
+							else
+							{
+								Log.Warning($"Invalid value for 'HighPriority'. Expected a bool, got {parameter.Value?.GetType()}");
+							}
+							break;
+						
+						case "TargetObject": // If the user wants to search for an entity with a GameObject
+							if (parameter.Value is GameObject targetEntity)
+							{
+								if ( targetEntity.IsValid() )
+								{
+									Log.Info($"Searching for entity: {targetEntity}");
+									Tests.Add(new TargetEntityTest(targetEntity));
+									Tests.RemoveAll(test => test is VisibilityTest);
+									Tests.RemoveAll(test => test is DistanceTest);
+								}
+								else
+								{
+									Log.Warning($"Invalid value for 'TargetObject'. Expected an Entity, got {parameter.Value?.GetType()}");
+								}
+							}
+							else
+							{
+								Log.Warning($"Invalid value for 'TargetObject'. Expected an Entity, got {parameter.Value?.GetType()}");
+							}
+							break;
+						
+						case "TargetObjectWithTag": // If the user wants to search for an entity with a tag
+							if (parameter.Value is String targetEntityWithTag)
+							{
+								foreach ( var item in Scene.GetAllObjects( true ).Where( X => X.Tags.Has( targetEntityWithTag ) ) )
+								{
+									if(item.IsValid())
+									{
+										Log.Info($"Searching for entity with tag: {targetEntityWithTag}");
+										Tests.Add(new TargetEntityTest(item));
+										Tests.RemoveAll(test => test is VisibilityTest);
+										Tests.RemoveAll(test => test is DistanceTest);
+									}
+									else
+									{
+										Log.Warning($"Invalid value for 'TargetObject'. Expected an Entity, got {parameter.Value?.GetType()}");
+									}
+								}
+							}
+							else
+							{
+								Log.Warning($"Invalid value for 'TargetObject'. Expected an Entity, got {parameter.Value?.GetType()}");
+							}
+							break;
+
+						case "RadiusOverride": // If the user wants to override the search radius
+							if (parameter.Value is float newRadius)
+							{
+								Log.Info($"Overriding search radius: {newRadius}");
+								Tests.Add(new OverrideRadius(newRadius));
+							}
+							else
+							{
+								Log.Warning($"Invalid value for 'RadiusOverride'. Expected a float, got {parameter.Value?.GetType()}");
+							}
+							break;
+
+						case "DebugMode": // If the user wants to enable debug mode
+							if (parameter.Value is bool debug)
+							{
+								Log.Info($"Debug mode set to: {debug}");
+								bDebugMode = debug;
+							}
+							else
+							{
+								Log.Warning($"Invalid value for 'DebugMode'. Expected a bool, got {parameter.Value?.GetType()}");
+							}
+							break;
+
+						default:
+							Log.Warning($"Unknown custom parameter: {parameter.Key}");
+							break;
+					}
 				}
 			}
 			
+			// Check if we have a test for TargetEntity
+			if (Tests.Any(test => test is TargetEntityTest))
+			{
+				Tests.RemoveAll(test => test is VisibilityTest);
+				Tests.RemoveAll(test => test is DistanceTest);
+			}
+			
 			var results = Execute(); // Execute the query
-			var selectedPoint = SelectPointBasedOnProbability(results); // Select a point based on the probability
+			var selectedPoint = SelectPointBasedOnProbability(results, minScoreThreshold); // Select a point based on the probability
 
 			if (bDebugMode) // Debug mode
 			{
@@ -291,8 +431,8 @@ namespace Sandbox
             foreach (var (point, score) in results)
             {
                 Color pointColor = Color.Lerp(Color.Red, Color.Green, score);
-                DebugOverlay.Sphere(Sphere.Unit, pointColor, 5.0f, new Transform(point), true);
-                DebugOverlay.Text(point + Vector3.Up * 2, $"Score: {score:0.00}", 5.0f, 0.0f, Color.White, 5.0f);
+                DebugOverlay.Sphere(Sphere.Unit, pointColor, 2.0f, new Transform(point), true);
+                DebugOverlay.Text(point + Vector3.Up * 2, $"Score: {score:0.00}", 5.0f, 0.0f, Color.White, 2.0f);
             }
         }
     }
@@ -344,6 +484,23 @@ namespace Sandbox
             return 1.0f - MathF.Abs(_desiredDistance - distance) / _desiredDistance; // Return the score
         }
     }
+    
+    // Override radius test : Override the radius of the sphere
+    public class OverrideRadius : EqsTest
+    {
+	    private float _radiusoverride;
+
+	    public OverrideRadius(float desiredDistance)
+	    {
+		    _radiusoverride = desiredDistance;
+	    }
+
+	    // Get the score of the point
+	    public override float GetScore(Vector3 point)
+	    {
+		    return _radiusoverride; // Return the score
+	    }
+    }
 
     // Flatness test : Check if the point is flat
     public class FlatnessTest : EqsTest
@@ -353,5 +510,26 @@ namespace Sandbox
             var trace = Scene.CreateEditorScene().Trace.Ray(point, point - Vector3.Up * 10).Run(); // Check if the point is flat
             return trace.Hit && trace.Normal.Dot(Vector3.Up) > 0.9f ? 1.0f : 0.0f; // Return the score
         }
+    }
+    
+    // Target entity test : Check the distance between the point and the target entity
+    public class TargetEntityTest : EqsTest
+    {
+	    private GameObject TargetEntity;
+
+	    public TargetEntityTest(GameObject targetEntity, float weight = 1.0f)
+	    {
+		    TargetEntity = targetEntity;
+		    Weight = weight;
+	    }
+
+	    public override float GetScore(Vector3 point)
+	    {
+		    if (!TargetEntity.IsValid()) return 0.0f;
+
+		    // Score based on distance to the target entity
+		    float distance = (TargetEntity.WorldPosition - point).Length;
+		    return distance > 0 ? 2.0f / distance : 0.0f; // Return the score
+	    }
     }
 }

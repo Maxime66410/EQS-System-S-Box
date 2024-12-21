@@ -287,11 +287,12 @@
           "__guid": "14f78a80-50d5-44d7-bdee-1745f2f5e2a8",
           "bDebugMode": true,
           "bUse2D": true,
-          "DesiredDistance": 186.99,
+          "DesiredDistance": 226.31,
+          "minScoreThreshold": 0.8,
           "NewLocationToMove": "0,0,0",
           "Origin": "0,0,0",
-          "Radius": 301.52,
-          "Step": 31.74,
+          "Radius": 377.27,
+          "Step": 35,
           "StopDistance": 30,
           "Tests": []
         }
@@ -303,7 +304,7 @@
       "Name": "Cube (2)",
       "Position": "86.78438,-125.1242,25.29375",
       "Rotation": "0,0,0.258819,0.9659258",
-      "Scale": "4.49323,1,2.505611",
+      "Scale": "7.095307,1,2.505611",
       "Enabled": true,
       "Components": [
         {
@@ -326,7 +327,7 @@
           "__guid": "e4dc28b9-37b7-484a-a56b-410f68bbb022",
           "Center": "0,0,0",
           "IsTrigger": false,
-          "Scale": "43.70005,32,32",
+          "Scale": "47.3,34.89996,32",
           "Static": false,
           "SurfaceVelocity": "0,0,0"
         }
@@ -360,7 +361,7 @@
           "__guid": "a2d30334-755d-4a16-b6a1-c08c97543625",
           "Center": "0,0,0",
           "IsTrigger": false,
-          "Scale": "43.70005,32,32",
+          "Scale": "47.3,32.99999,32",
           "Static": false,
           "SurfaceVelocity": "0,0,0"
         }
@@ -371,6 +372,7 @@
       "Flags": 0,
       "Name": "Cube",
       "Position": "-172.2116,9.75032,25.29375",
+      "Scale": "1,1,1.323654",
       "Enabled": true,
       "Components": [
         {
@@ -393,8 +395,56 @@
           "__guid": "42eea4d2-73a8-4e51-a108-1e4395068c20",
           "Center": "0,0,0",
           "IsTrigger": false,
-          "Scale": "32,32,32",
+          "OnComponentDisabled": null,
+          "OnComponentEnabled": null,
+          "Scale": "35.19994,36.69993,32",
           "Static": false,
+          "SurfaceVelocity": "0,0,0"
+        },
+        {
+          "__type": "Sandbox.NavMeshArea",
+          "__guid": "669b0d82-48e5-455f-aae1-086fcd6613e5",
+          "IsBlocker": true,
+          "LinkedCollider": {
+            "_type": "component",
+            "component_id": "42eea4d2-73a8-4e51-a108-1e4395068c20",
+            "go": "4b23908c-6dd6-414f-b7fd-4cc5e755790b",
+            "component_type": "BoxCollider"
+          }
+        }
+      ]
+    },
+    {
+      "__guid": "99c5273d-7574-44fe-92c9-a2b7d9545f30",
+      "Flags": 0,
+      "Name": "FakeTargetObject",
+      "Position": "-285.8196,255.8098,0.01179854",
+      "Rotation": "0,0,-0.7071067,0.7071068",
+      "Tags": "player",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "7402a94e-42bf-4d17-947c-c48cee8d064d",
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "Model": "models/infoterryfinal/terrystart.vmdl",
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        },
+        {
+          "__type": "Sandbox.BoxCollider",
+          "__guid": "3497880e-4110-46a4-901a-ed653443a029",
+          "Center": "0,0,37.30001",
+          "IsTrigger": false,
+          "Scale": "32,32,74.09993",
+          "Static": true,
           "SurfaceVelocity": "0,0,0"
         }
       ]
@@ -428,6 +478,8 @@
   "ResourceVersion": 2,
   "Title": "minimal",
   "Description": null,
-  "__references": [],
+  "__references": [
+    "pilgrim.terrystart#11488"
+  ],
   "__version": 2
 }
