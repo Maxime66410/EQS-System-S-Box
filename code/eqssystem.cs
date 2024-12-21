@@ -155,7 +155,9 @@ namespace Sandbox
         private Vector3 SelectPointBasedOnProbability(List<(Vector3 Point, float Score)> scoredPoints, float localminScoreThreshold = 0.8f)
         {
 	        // Filter the points based on the min score threshold
-	        var filteredPoints = scoredPoints.Where(p => p.Score >= localminScoreThreshold).ToList();
+	        var maxPriority = Tests.Max(test => test.Priority);
+	        var filteredPoints = scoredPoints.Where(p => p.Score >= localminScoreThreshold).ToList() // Filter the points with a score >= minScoreThreshold
+		        .Where(p => Tests.Where(test => test.Priority == maxPriority).All(test => test.GetScore(p.Point) > 0.0f)).ToList(); // Filter the points with the max priority
 
 	        if (filteredPoints.Count == 0)
 	        {
@@ -441,6 +443,8 @@ namespace Sandbox
     public abstract class EqsTest 
     {
         public float Weight { get; set; } = 1.0f; // Weight - default 1 : Weight of the test
+        
+        public int Priority { get; set; } = 0; // Priority - default 0 : Priority of the test
         public abstract float GetScore(Vector3 point); // Get the score of the point
     }
 

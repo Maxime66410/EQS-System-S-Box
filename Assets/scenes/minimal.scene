@@ -287,12 +287,12 @@
           "__guid": "14f78a80-50d5-44d7-bdee-1745f2f5e2a8",
           "bDebugMode": true,
           "bUse2D": true,
-          "DesiredDistance": 226.31,
+          "DesiredDistance": 211.18,
           "minScoreThreshold": 0.8,
           "NewLocationToMove": "0,0,0",
           "Origin": "0,0,0",
-          "Radius": 377.27,
-          "Step": 35,
+          "Radius": 383.33,
+          "Step": 33.82,
           "StopDistance": 30,
           "Tests": []
         }
