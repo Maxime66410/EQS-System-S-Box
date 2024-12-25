@@ -22,11 +22,34 @@ Eqscontroller
 	>.TargetTask
 	{
 		position: absolute;
-		top: 128px;
+		top: 148px;
 		left: 64px;
 		flex-direction: column;
 		color : white;
 		text-stroke : 8px black;
+	}
+	
+	>.CustomTask
+	{
+		position: absolute;
+		bottom: 32px;
+		right: 32px;
+		flex-direction: column-reverse;
+		color : white;
+		text-stroke : 8px black;
+
+		>.textentry
+		{
+			background-color: black;
+			color: white;
+			background-color: rgba( black, 0.5 );
+			font-size: 14px;
+			// flex-shrink: 0;
+			// flex-grow: 1;
+			width: 450px;
+			font-family: Roboto;
+			padding: 4px;
+		}
 	}
 	
 	>.Controller

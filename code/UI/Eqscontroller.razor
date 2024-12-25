@@ -6,17 +6,24 @@
 <root>
 	<div class="Target">
 		<p>Target Name : @TargetEqs.Name</p>
+		<p>Target Target Location : @GetTargetLocation()</p>
 		<p>Target Transform : @TargetEqs.WorldTransform</p>
 	</div>
+	
 	<div class="TargetTask">
 		<p>Task Number : @GetTaskFromTarget().Count</p>
-			@if ( GetTaskFromTarget() != null )
+		@if ( GetTaskFromTarget() != null )
+		{
+			@foreach ( var item in GetTaskFromTarget() )
 			{
-				@foreach ( var item in GetTaskFromTarget() )
-				{
 				<p>@item | Weight : @item.Weight | Priority : @item.Priority</p>
-				}
 			}
+		}
+	</div>
+	
+	<div class="CustomTask">
+		<TextEntry class="textentry" AllowEmojiReplace=@(true) />
+		<h2>Custom Task</h2>
 	</div>
 	
 	<div class="Controller">
@@ -71,8 +78,28 @@
 			{
 				return TargetEqs.GetComponent<EqsQuery>().GetTests();
 			}
+			else
+			{
+				return null;
+			}
 		}
 		return null;
+	}
+
+	private Vector3 GetTargetLocation()
+	{
+		if ( TargetEqs.IsValid() )
+		{
+			if (TargetEqs.GetComponent<EqsQuery>().IsValid())
+			{
+				return TargetEqs.GetComponent<EqsQuery>().NewLocationToMove;
+			}
+			else
+			{
+				return Vector3.Zero;
+			}
+		}
+		return Vector3.Zero;
 	}
 
 	protected override void OnStart()
