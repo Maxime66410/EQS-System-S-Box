@@ -215,7 +215,6 @@
       "__guid": "db21e1cd-ffc9-4d14-829e-a90f29db7a2d",
       "Flags": 0,
       "Name": "EQSAgent",
-      "Position": "27.54473,-9.251751,10.13772",
       "Rotation": "0,0,-1,0.0000001947072",
       "Enabled": true,
       "Components": [
@@ -254,7 +253,7 @@
           "IsTrigger": false,
           "Radius": 9.422288,
           "Start": "0,0,10",
-          "Static": false,
+          "Static": true,
           "SurfaceVelocity": "0,0,0"
         },
         {
@@ -463,7 +462,7 @@
       "Title": "minimal"
     },
     "NavMesh": {
-      "Enabled": false,
+      "Enabled": true,
       "IncludeStaticBodies": true,
       "IncludeKeyframedBodies": true,
       "EditorAutoUpdate": true,

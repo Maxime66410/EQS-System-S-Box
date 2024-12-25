@@ -364,6 +364,8 @@ namespace Sandbox
 			{
 				NewLocationToMove = selectedPoint;
 				_agent.MoveTo(NewLocationToMove);
+				_timeSinceLastCheck = 0.0f;
+				_lastPosition = _agent.WorldPosition;
 				_animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Run;
 				_animationHelper.WithVelocity(_agent.Velocity);
 				_isAgentActive = true;
@@ -395,7 +397,6 @@ namespace Sandbox
         // Awake : Called when the entity is created
         protected override void OnAwake()
         {
-            Origin = this.WorldPosition;
             _agent = GetComponent<NavMeshAgent>();
             _animationHelper = GetComponent<CitizenAnimationHelper>();
 
@@ -413,6 +414,7 @@ namespace Sandbox
         // Start : Called when the entity is started
         protected override void OnStart()
 		{
+			Origin = this.WorldPosition;
 			// Example of custom parameters
 			var customParams = new Dictionary<string, object>
 			{
@@ -439,6 +441,15 @@ namespace Sandbox
             
                 DebugOverlay.Text((Origin + NewLocationToMove) / 2 + new Vector3(0, 0, 10), $"Distance: {(_agent.WorldPosition - NewLocationToMove).Length}", 10.0f, 0.0f, Color.Blue);
                 DebugOverlay.Text(Origin + new Vector3(0, 0, 100), $"Move To: {(NewLocationToMove)}", 10.0f, 0.0f, Color.Yellow);
+                
+                if (_agent.IsValid())
+				{
+					List<Vector3> path = Scene.NavMesh.GetSimplePath( Origin, NewLocationToMove);
+					for (int i = 0; i < path.Count - 1; i++)
+					{
+						DebugOverlay.Line(path[i], path[i + 1], Color.Red, 0.0f);
+					}
+				}
             }
             
             if(_animationHelper.IsValid()) _animationHelper.WithVelocity(_agent.Velocity); // Update the velocity of the entity
@@ -452,25 +463,25 @@ namespace Sandbox
 	            {
 		            _timeSinceLastCheck = 0.0f;
 
-		            if ( IsAgentBlocked( _agent.WorldPosition, _lastPosition ) )
+		            if ( IsAgentBlocked( _agent.WorldPosition, _lastPosition ) ) // Check if the agent is blocked
 		            {
 			            _agent.Stop();
 			            _agent.Velocity = Vector3.Zero;
-			            _lastPosition = _agent.WorldPosition;
+			            _lastPosition = _agent.WorldPosition; // Update the last position
 			            _isAgentActive = false;
 			            Log.Warning($"Agent {_agent.GameObject.Name} is blocked. Aborting current task.");
 		            }
 		            
-		            _lastPosition = _agent.WorldPosition;
+		            _lastPosition = _agent.WorldPosition; // Update the last position
 	            }
 	            
+	            // Check if the agent has reached the destination point and stop the agent
 	            if((_agent.WorldPosition - NewLocationToMove).Length <= StopDistance)
 	            {
 		            _agent.Stop();
 		            _agent.Velocity = Vector3.Zero;
 		            _isAgentActive = false;
 		            
-		            // Recall the query
 		            ExecuteQuery();
 	            }
             }
