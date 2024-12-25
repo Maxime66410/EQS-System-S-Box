@@ -1,0 +1,94 @@
+@using Sandbox;
+@using Sandbox.UI;
+@inherits PanelComponent
+@namespace Sandbox
+
+<root>
+	<div class="Target">
+		<p>Target Name : @TargetEqs.Name</p>
+		<p>Target Transform : @TargetEqs.WorldTransform</p>
+	</div>
+	<div class="TargetTask">
+		<p>Task Number : @GetTaskFromTarget().Count</p>
+			@if ( GetTaskFromTarget() != null )
+			{
+				@foreach ( var item in GetTaskFromTarget() )
+				{
+				<p>@item | Weight : @item.Weight | Priority : @item.Priority</p>
+				}
+			}
+	</div>
+	
+	<div class="Controller">
+		<button @onclick="@( () => CallWithAgent(0) )"> Stop Agent </button>
+		<button @onclick="@( () => CallWithAgent(1) )"> Stop All Tasks </button>
+		<button @onclick="@( () => CallWithAgent(2) )"> Clear Cache </button>
+		<button @onclick="@( () => CallWithAgent(3) )"> Random Path </button>
+		<button @onclick="@( () => CallWithAgent(4) )"> Send Custom Task </button>
+	</div>
+</root>
+
+@code
+{
+	[Property] GameObject TargetEqs { get; set; }
+	
+	private void CallWithAgent(int selectedTask)
+	{
+		if ( TargetEqs.IsValid() )
+		{
+			if (TargetEqs.GetComponent<EqsQuery>().IsValid())
+			{
+				switch (selectedTask )
+				{
+					case 0: // Stop Agent
+						TargetEqs.GetComponent<EqsQuery>().StopAgent();
+						break;
+					
+					case 1: // Stop All Tasks
+						TargetEqs.GetComponent<EqsQuery>().StopAllTask();
+						break;
+						
+					case 2: // Clear cache
+						TargetEqs.GetComponent<EqsQuery>().ClearCache();
+						break;
+						
+					case 3: // Random Path
+						TargetEqs.GetComponent<EqsQuery>().ExecuteQuery();
+						break;
+					
+					default:
+						break;
+				}
+			}
+		}
+	}
+	
+	private List<EqsTest> GetTaskFromTarget()
+	{
+		if ( TargetEqs.IsValid() )
+		{
+			if (TargetEqs.GetComponent<EqsQuery>().IsValid())
+			{
+				return TargetEqs.GetComponent<EqsQuery>().GetTests();
+			}
+		}
+		return null;
+	}
+
+	protected override void OnStart()
+	{
+		if ( !TargetEqs.IsValid() )
+		{
+			foreach ( var item in Scene.GetAllObjects( true ).Where( X => X.Tags.Has( "eqsentity" ) ) )
+			{
+				TargetEqs = item;
+				break;
+			}
+		}
+	}
+
+	protected override int BuildHash()
+	{
+		return System.HashCode.Combine(TargetEqs);
+	}
+}

@@ -3,6 +3,7 @@
     "__guid": "db21e1cd-ffc9-4d14-829e-a90f29db7a2d",
     "Flags": 0,
     "Name": "eqsagent",
+    "Tags": "eqsentity",
     "Enabled": true,
     "Components": [
       {

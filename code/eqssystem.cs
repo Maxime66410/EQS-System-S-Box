@@ -35,6 +35,9 @@ namespace Sandbox
         private CitizenAnimationHelper _animationHelper; // CitizenAnimationHelper
         private List<(Vector3 Point, float Score)> _cachedResults = new(); // Cached results
         
+        /********************/
+        /* Function for EQS */
+        /********************/
 
         // Execute the query : Generate points, evaluate points with scores and return the results
         public List<(Vector3 Point, float Score)> Execute()
@@ -393,6 +396,60 @@ namespace Sandbox
         {
 	        return (currentPosition - lastPosition).Length <= tolerance;
         }
+        
+        /******************/
+        /*    Call EQS    */
+        /******************/
+        
+        // Stop the agent : Stop the agent from moving
+        public void StopAgent()
+		{
+	        if (_agent.IsValid())
+	        {
+		        _agent.Stop();
+		        _agent.Velocity = Vector3.Zero;
+		        _isAgentActive = false;
+	        }
+		}
+        
+        // Stop All Task : Stop all the tasks and the agent
+        public void StopAllTask()
+        {
+	        StopAgent();
+	        Tests.Clear();
+        }
+        
+        // Delete Specific Task : Delete a specific task from the list
+        public void DeleteSpecificTask(EqsTest task)
+		{
+	        Tests.Remove(task);
+		}
+        
+        // Clear Cache : Clear the cached results
+        public void ClearCache()
+		{
+	        _cachedResults.Clear();
+		}
+        
+        // Get the cached results : Get the cached results
+        public List<(Vector3 Point, float Score)> GetCachedResults() => _cachedResults;
+        
+        // Get the last cached result : Get the last cached result
+        public (Vector3 Point, float Score) GetLastCachedResult() => _cachedResults.LastOrDefault();
+        
+        // CallRequest
+        public void CallRequest(VisibilityTest visibilityTest = null, DistanceTest distanceTest = null, Dictionary<string, object> customParams = null)
+        {
+	        StopAgent();
+	        ExecuteQuery(visibilityTest, distanceTest, customParams);
+        }
+        
+        // Get Tests : Get the tests from the query
+        public List<EqsTest> GetTests() => Tests;
+        
+        /******************/
+        /* S&Box Function */
+        /******************/
 
         // Awake : Called when the entity is created
         protected override void OnAwake()
@@ -417,16 +474,16 @@ namespace Sandbox
 			Origin = this.WorldPosition;
 			
 			// Example of custom parameters
-			var customParams = new Dictionary<string, object>
+			/*var customParams = new Dictionary<string, object>
 			{
 				//{ "Priority", "High" },
 				//{ "TargetObjectWithTag", "player" },
 				//{ "RadiusOverride", 500.0f },
 				//{ "DebugMode", true }
-			};
+			};*/
 			
 			// Execute the query
-			ExecuteQuery(new VisibilityTest(Origin), new DistanceTest(Origin, DesiredDistance), customParams);
+			//ExecuteQuery(new VisibilityTest(Origin), new DistanceTest(Origin, DesiredDistance), customParams);
 		}
 
         // Update : Called every frame
@@ -494,8 +551,7 @@ namespace Sandbox
 		            _agent.Stop();
 		            _agent.Velocity = Vector3.Zero;
 		            _isAgentActive = false;
-		            
-		            ExecuteQuery();
+		            Log.Warning($"Agent {_agent.GameObject.Name} has reached the destination point.");
 	            }
             }
         }
