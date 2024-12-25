@@ -547,6 +547,63 @@
           ]
         },
         {
+          "__guid": "5decef9d-b085-4b16-9ca4-9b8849217fad",
+          "Flags": 0,
+          "Name": "Text (1)",
+          "Position": "902.5363,-650.5123,129.6832",
+          "Rotation": "0.00000003648233,0.00000005601077,0.5,0.8660256",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "Sandbox.TextRenderer",
+              "__guid": "723ede4e-8336-4ef6-ac62-8d88739283f4",
+              "__version": 1,
+              "BlendMode": "Normal",
+              "RenderOptions": {
+                "GameLayer": true,
+                "OverlayLayer": false,
+                "BloomLayer": false,
+                "AfterUILayer": false
+              },
+              "Scale": 0.3,
+              "TextAlignment": "Center",
+              "TextScope": {
+                "Text": "Tag : \u0022crowbar\u0022",
+                "TextColor": "1,1,1,1",
+                "FontName": "Poppins",
+                "FontSize": 64,
+                "FontWeight": 800,
+                "FontItalic": false,
+                "LineHeight": 1,
+                "LetterSpacing": 0,
+                "WordSpacing": 0,
+                "Outline": {
+                  "Enabled": true,
+                  "Size": 4,
+                  "Color": "0,0,0,1"
+                },
+                "Shadow": {
+                  "Enabled": true,
+                  "Size": 10,
+                  "Color": "0,0,0,1",
+                  "Offset": "4,4"
+                },
+                "OutlineUnder": {
+                  "Enabled": false,
+                  "Size": 4,
+                  "Color": "0,1,0,1"
+                },
+                "ShadowUnder": {
+                  "Enabled": true,
+                  "Size": 10,
+                  "Color": "0,0,0,1",
+                  "Offset": "4,4"
+                }
+              }
+            }
+          ]
+        },
+        {
           "__guid": "bd094b6f-4517-48fd-b32d-596f473a9896",
           "Flags": 0,
           "Name": "Text",

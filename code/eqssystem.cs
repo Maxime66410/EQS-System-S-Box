@@ -448,6 +448,28 @@ namespace Sandbox
         // Get Tests : Get the tests from the query
         public List<EqsTest> GetTests() => Tests;
         
+        // Check Target Entity Distance : Check the distance between the target entity and the point
+        private void CheckTargetEntityDistance()
+		{
+			// Check if in Test we have a TargetEntityTest - Optional for entity not reach the final destination
+			if (Tests.Any(test => test is TargetEntityTest))
+			{
+				TargetEntityTest targetEntity;
+				targetEntity = (TargetEntityTest)Tests.First( test => test is TargetEntityTest );
+				// Get the target entity
+				if(targetEntity.GetEntity().IsValid())
+				{
+					// Check if the agent has not reached the target entity and move the agent to the target entity
+					if((_agent.WorldPosition - targetEntity.GetEntity().WorldPosition).Length >= (StopDistance + 10.0f))
+					{
+						Log.Info($"Agent {_agent.GameObject.Name} has not reached the target entity. Moving to the target entity.");
+						// Execute the same query with the target entity
+						ExecuteQuery( new VisibilityTest(Origin), new DistanceTest(Origin, DesiredDistance), new Dictionary<string, object> { { "TargetObject", targetEntity.GetEntity() } } );
+					}
+				}
+			}
+		}
+        
         /******************/
         /* S&Box Function */
         /******************/
@@ -542,6 +564,7 @@ namespace Sandbox
 			            _isAgentActive = false;
 			            _timeSinceLastCheck = 0.0f;
 			            Log.Warning($"Agent {_agent.GameObject.Name} is blocked. Aborting current task.");
+			            CheckTargetEntityDistance();
 		            }
 		            
 		            _lastPosition = _agent.WorldPosition; // Update the last position
@@ -555,6 +578,7 @@ namespace Sandbox
 		            _isAgentActive = false;
 		            _timeSinceLastCheck = 0.0f;
 		            Log.Warning($"Agent {_agent.GameObject.Name} has reached the destination point.");
+		            CheckTargetEntityDistance();
 	            }
             }
         }
@@ -647,6 +671,11 @@ namespace Sandbox
 	    {
 		    TargetEntity = targetEntity;
 		    Weight = weight;
+	    }
+	    
+	    public GameObject GetEntity()
+	    {
+		    return TargetEntity;
 	    }
 
 	    public override float GetScore(Vector3 point)
