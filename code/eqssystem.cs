@@ -415,6 +415,7 @@ namespace Sandbox
         protected override void OnStart()
 		{
 			Origin = this.WorldPosition;
+			
 			// Example of custom parameters
 			var customParams = new Dictionary<string, object>
 			{
@@ -440,7 +441,7 @@ namespace Sandbox
                 DebugOverlay.Sphere(Sphere.Unit, Color.Yellow, 0.0f, new Transform(NewLocationToMove), true);
             
                 DebugOverlay.Text((Origin + NewLocationToMove) / 2 + new Vector3(0, 0, 10), $"Distance: {(_agent.WorldPosition - NewLocationToMove).Length}", 10.0f, 0.0f, Color.Blue);
-                DebugOverlay.Text(Origin + new Vector3(0, 0, 100), $"Move To: {(NewLocationToMove)}", 10.0f, 0.0f, Color.Yellow);
+                DebugOverlay.Text(Origin + new Vector3(0, 0, 110), $"Move To: {(NewLocationToMove)}", 10.0f, 0.0f, Color.Yellow);
                 
                 if (_agent.IsValid())
 				{
@@ -450,6 +451,18 @@ namespace Sandbox
 						DebugOverlay.Line(path[i], path[i + 1], Color.Red, 0.0f);
 					}
 				}
+                
+                if ( Tests.Count > 0)
+                {
+	                String taskString = "";
+	                
+	                foreach (var test in Tests)
+	                {
+		                taskString += "\n" + test.GetType().Name + " | Score : " + test.GetScore(Origin) + " | Weight : " + test.Weight + " | Priority : " + test.Priority + " | Mixed : " + test.Weight * test.Priority;
+	                }
+	                
+	                DebugOverlay.Text(Origin + new Vector3(0, 0, 100), $"Task: {taskString}", 10.0f, 0.0f, Color.Gray, 0.0f);
+                }
             }
             
             if(_animationHelper.IsValid()) _animationHelper.WithVelocity(_agent.Velocity); // Update the velocity of the entity

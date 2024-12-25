@@ -49,6 +49,7 @@
         "BodyWeight": 1,
         "EyesWeight": 1,
         "HeadWeight": 1,
+        "Height": 1,
         "LookAtEnabled": true,
         "Target": {
           "_type": "component",
@@ -60,7 +61,7 @@
       {
         "__type": "Sandbox.NavMeshAgent",
         "__guid": "86a5386e-d529-4198-b052-6602e8de219e",
-        "Acceleration": 50,
+        "Acceleration": 500,
         "Height": 71.30006,
         "MaxSpeed": 120,
         "Radius": 12.799963,
@@ -70,14 +71,15 @@
       },
       {
         "__type": "Sandbox.EqsQuery",
-        "__guid": "78180da1-e488-4534-837d-685306f676fb",
-        "bDebugMode": true,
+        "__guid": "14f78a80-50d5-44d7-bdee-1745f2f5e2a8",
+        "bDebugMode": false,
         "bUse2D": true,
-        "DesiredDistance": 50,
+        "DesiredDistance": 211,
+        "minScoreThreshold": 0.8,
         "NewLocationToMove": "0,0,0",
         "Origin": "0,0,0",
-        "Radius": 100,
-        "Step": 10,
+        "Radius": 380,
+        "Step": 33,
         "StopDistance": 30,
         "Tests": []
       }
