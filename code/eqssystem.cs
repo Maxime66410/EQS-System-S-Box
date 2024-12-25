@@ -194,6 +194,7 @@ namespace Sandbox
         public void ExecuteQuery(VisibilityTest visibilityTest = null, DistanceTest distanceTest = null, Dictionary<string, object> customParams = null)
 		{
 			Origin = this.WorldPosition;
+			_timeSinceLastCheck = 0.0f;
 			Tests.Clear();
 
 			int customPriority = 1;
@@ -539,6 +540,7 @@ namespace Sandbox
 			            _agent.Velocity = Vector3.Zero;
 			            _lastPosition = _agent.WorldPosition; // Update the last position
 			            _isAgentActive = false;
+			            _timeSinceLastCheck = 0.0f;
 			            Log.Warning($"Agent {_agent.GameObject.Name} is blocked. Aborting current task.");
 		            }
 		            
@@ -551,6 +553,7 @@ namespace Sandbox
 		            _agent.Stop();
 		            _agent.Velocity = Vector3.Zero;
 		            _isAgentActive = false;
+		            _timeSinceLastCheck = 0.0f;
 		            Log.Warning($"Agent {_agent.GameObject.Name} has reached the destination point.");
 	            }
             }
