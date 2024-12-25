@@ -24,6 +24,12 @@ namespace Sandbox
         [Property, Range(1.0f, 50.0f)] public float StopDistance { get; set; } = 30f; // Stop distance - default 15 : Distance to stop
 
         [Property] public List<EqsTest> Tests { get; set; } = new List<EqsTest>(); // List of tests
+        
+        
+        private Vector3 _lastPosition; // Last position
+        private float _blockCheckInterval = 1.0f; // Block check interval
+        private float _timeSinceLastCheck = 0.0f; // Time since last check
+        private bool _isAgentActive = false; // Is agent active
 
         private NavMeshAgent _agent; // NavMeshAgent
         private CitizenAnimationHelper _animationHelper; // CitizenAnimationHelper
@@ -122,11 +128,11 @@ namespace Sandbox
             foreach (var point in points) // Evaluate each point
             {
                 float totalScore = 0.0f;
-                float totalWeight = Tests.Sum(test => test.Weight); // Sum of the weights
+                float totalWeight = Tests.Sum(test => test.Weight * test.Priority); // Sum of the weights
 
                 foreach (var test in Tests)
                 {
-                    totalScore += test.GetScore(point) * test.Weight; // Get the score of the point
+                    totalScore += test.GetScore(point) * test.Weight * test.Priority; // Get the score of the point
                 }
 
                 totalScore /= totalWeight > 0 ? totalWeight : 1.0f; // Normalize the score
@@ -205,9 +211,9 @@ namespace Sandbox
 			// Example of custom parameters
 			var customParams = new Dictionary<string, object>
 			{
+				//{ "Priority", "High" },
 				//{ "TargetObjectWithTag", "player" },
 				//{ "RadiusOverride", 500.0f },
-				//{ "Priority", "High" },
 				//{ "DebugMode", true }
 			};
 			
@@ -232,12 +238,32 @@ namespace Sandbox
             
             if(_animationHelper.IsValid()) _animationHelper.WithVelocity(_agent.Velocity); // Update the velocity of the entity
 
-            if ( _agent.IsValid() )
+            if ( _agent.IsValid() && _isAgentActive)
             {
+	            _timeSinceLastCheck += Time.Delta;
+	            
+	            // Check if the agent is blocked
+	            if ( _timeSinceLastCheck >= _blockCheckInterval )
+	            {
+		            _timeSinceLastCheck = 0.0f;
+
+		            if ( IsAgentBlocked( _agent.WorldPosition, _lastPosition ) )
+		            {
+			            _agent.Stop();
+			            _agent.Velocity = Vector3.Zero;
+			            _lastPosition = _agent.WorldPosition;
+			            _isAgentActive = false;
+			            Log.Warning($"Agent {_agent.GameObject.Name} is blocked. Aborting current task.");
+		            }
+		            
+		            _lastPosition = _agent.WorldPosition;
+	            }
+	            
 	            if((_agent.WorldPosition - NewLocationToMove).Length <= StopDistance)
 	            {
 		            _agent.Stop();
 		            _agent.Velocity = Vector3.Zero;
+		            _isAgentActive = false;
 		            
 		            // Recall the query
 		            ExecuteQuery();
@@ -250,6 +276,8 @@ namespace Sandbox
 		{
 			Origin = this.WorldPosition;
 			Tests.Clear();
+
+			int customPriority = 1;
 			
 			if (visibilityTest != null) // Add the visibility test
 			{
@@ -257,7 +285,7 @@ namespace Sandbox
 			}
 			else
 			{
-				Tests.Add(new VisibilityTest(Origin));
+				Tests.Add(new VisibilityTest(Origin) { Priority = customPriority });
 				Log.Warning("No VisibilityTest provided, using default");
 			}
 			
@@ -267,20 +295,20 @@ namespace Sandbox
 			}
 			else
 			{
-				Tests.Add(new DistanceTest(Origin, DesiredDistance));
+				Tests.Add(new DistanceTest(Origin, DesiredDistance) { Priority = customPriority });
 				Log.Warning("No DistanceTest provided, using default");
 			}
 			
 			// Custom params from VisibilityOrigin
 			if (customParams != null && customParams.ContainsKey("VisibilityOrigin") && customParams["VisibilityOrigin"] is Vector3 visibilityOrigin)
 			{
-				Tests.Add(new VisibilityTest(visibilityOrigin));
+				Tests.Add(new VisibilityTest(visibilityOrigin) { Priority = customPriority });
 			}
 
 			// Custom params from DesiredDistance
 			if (customParams != null && customParams.ContainsKey("DesiredDistance") && customParams["DesiredDistance"] is float desiredDistance)
 			{
-				Tests.Add(new DistanceTest(Origin, desiredDistance));
+				Tests.Add(new DistanceTest(Origin, desiredDistance) { Priority = customPriority });
 			}
 			
 			// Full custom params : is for better request mode for better results & AI
@@ -288,7 +316,8 @@ namespace Sandbox
 			{
 				foreach (var parameter in customParams)
 				{
-					Log.Info($"Custom Parameter: {parameter.Key} = {parameter.Value}"); // Debug FOR THE MOMENT
+					if(bDebugMode) Log.Info($"Custom Parameter: {parameter.Key} = {parameter.Value}");
+					if(bDebugMode) Log.Info($"Custom Priority: {customPriority}");
 					
 					switch (parameter.Key)
 					{
@@ -298,17 +327,20 @@ namespace Sandbox
 								if (highPriority == "High")
 								{
 									Log.Info($"High priority set to: {highPriority}");
-									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  2.0f });
+									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  2.0f, Priority = 3});
+									customPriority = 3;
 								}
 								else if (highPriority == "Medium")
 								{
 									Log.Info($"Medium priority set to: {highPriority}");
-									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  1.0f });
+									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  1.0f, Priority = 2});
+									customPriority = 2;
 								}
 								else if (highPriority == "Low")
 								{
 									Log.Info($"Low priority set to: {highPriority}");
-									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  0.5f });
+									Tests.Add(new DistanceTest(Origin, DesiredDistance) { Weight =  0.5f, Priority = 1});
+									customPriority = 1;
 								}
 								else
 								{
@@ -327,7 +359,7 @@ namespace Sandbox
 								if ( targetEntity.IsValid() )
 								{
 									Log.Info($"Searching for entity: {targetEntity}");
-									Tests.Add(new TargetEntityTest(targetEntity));
+									Tests.Add(new TargetEntityTest(targetEntity) { Priority = customPriority });
 									Tests.RemoveAll(test => test is VisibilityTest);
 									Tests.RemoveAll(test => test is DistanceTest);
 								}
@@ -350,7 +382,7 @@ namespace Sandbox
 									if(item.IsValid())
 									{
 										Log.Info($"Searching for entity with tag: {targetEntityWithTag}");
-										Tests.Add(new TargetEntityTest(item));
+										Tests.Add(new TargetEntityTest(item) { Priority = customPriority });
 										Tests.RemoveAll(test => test is VisibilityTest);
 										Tests.RemoveAll(test => test is DistanceTest);
 									}
@@ -370,7 +402,7 @@ namespace Sandbox
 							if (parameter.Value is float newRadius)
 							{
 								Log.Info($"Overriding search radius: {newRadius}");
-								Tests.Add(new OverrideRadius(newRadius));
+								Tests.Add(new OverrideRadius(newRadius) { Priority = customPriority });
 							}
 							else
 							{
@@ -418,6 +450,7 @@ namespace Sandbox
 				_agent.MoveTo(NewLocationToMove);
 				_animationHelper.MoveStyle = CitizenAnimationHelper.MoveStyles.Run;
 				_animationHelper.WithVelocity(_agent.Velocity);
+				_isAgentActive = true;
 			}
 			else
 			{
@@ -437,6 +470,11 @@ namespace Sandbox
                 DebugOverlay.Text(point + Vector3.Up * 2, $"Score: {score:0.00}", 5.0f, 0.0f, Color.White, 2.0f);
             }
         }
+        
+        private bool IsAgentBlocked(Vector3 currentPosition, Vector3 lastPosition, float tolerance = 0.1f)
+        {
+	        return (currentPosition - lastPosition).Length <= tolerance;
+        }
     }
 
     // Extension methods for the EqsQuery
@@ -444,9 +482,10 @@ namespace Sandbox
     {
         public float Weight { get; set; } = 1.0f; // Weight - default 1 : Weight of the test
         
-        public int Priority { get; set; } = 0; // Priority - default 0 : Priority of the test
+        public int Priority { get; set; } = 1; // Priority - default 0 : Priority of the test
+		
         public abstract float GetScore(Vector3 point); // Get the score of the point
-    }
+    } 
 
     // Visibility test : Check if the point is visible
     public class VisibilityTest : EqsTest

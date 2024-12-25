@@ -215,7 +215,7 @@
       "__guid": "db21e1cd-ffc9-4d14-829e-a90f29db7a2d",
       "Flags": 0,
       "Name": "EQSAgent",
-      "Position": "27.54473,-9.251751,10.13772",
+      "Position": "2.785173,-11.75857,15.15108",
       "Rotation": "0,0,-1,0.0000001947072",
       "Enabled": true,
       "Components": [
@@ -338,7 +338,7 @@
       "Flags": 0,
       "Name": "Cube (1)",
       "Position": "32.17628,156.1601,25.29375",
-      "Scale": "4.49323,1,2.505611",
+      "Scale": "6.868354,1,2.505611",
       "Enabled": true,
       "Components": [
         {
@@ -463,7 +463,7 @@
       "Title": "minimal"
     },
     "NavMesh": {
-      "Enabled": true,
+      "Enabled": false,
       "IncludeStaticBodies": true,
       "IncludeKeyframedBodies": true,
       "EditorAutoUpdate": true,
