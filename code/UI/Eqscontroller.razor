@@ -22,7 +22,8 @@
 	</div>
 	
 	<div class="CustomTask">
-		<TextEntry class="textentry" AllowEmojiReplace=@(true) />
+		<p>Press Enter to valid</p>
+		<TextEntry class="textentry" @ref=" InputBox" onsubmit="@InputFinished" onblur="@InputFinished" AllowEmojiReplace="@( true )"/>
 		<h2>Custom Task</h2>
 	</div>
 	
@@ -37,6 +38,13 @@
 
 @code
 {
+	TextEntry InputBox;
+
+	Dictionary<string, object> _customParams = new Dictionary<string, object>
+	{
+		{ "test", "test" }
+	};
+
 	[Property] GameObject TargetEqs { get; set; }
 	
 	private void CallWithAgent(int selectedTask)
@@ -62,10 +70,73 @@
 					case 3: // Random Path
 						TargetEqs.GetComponent<EqsQuery>().ExecuteQuery();
 						break;
+						
+						case 4:
+						TargetEqs.GetComponent<EqsQuery>().ExecuteQuery(null, null, _customParams);
+						break;
 					
 					default:
 						break;
 				}
+			}
+		}
+	}
+
+	private void InputFinished()
+	{
+		if ( TargetEqs.IsValid() )
+		{
+			string text = InputBox.Text.Trim();
+			
+			if (string.IsNullOrWhiteSpace(text)) return;
+			
+			// Clear customParams
+			_customParams.Clear();
+			
+			// Check all lines and add to customParams dictionary 
+			foreach ( var line in text.Split('\n') )
+			{
+				var parts = line.Split(',');
+				if ( parts.Length != 2 ) continue;
+				
+				var key = parts[0].Trim();
+				var value = parts[1].Trim();
+				
+				if ( string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(value) ) continue;
+				
+				// cast value type to object
+				if ( int.TryParse(value, out int intValue) )
+				{
+					_customParams.Add(key, intValue);
+				}
+				else if ( bool.TryParse(value, out bool boolValue) )
+				{
+					_customParams.Add(key, boolValue);
+				}
+				else
+				{
+					if(value.Contains("f"))
+					{
+						if ( float.TryParse(value.Replace("f", ""), out float floatValue) )
+						{
+							_customParams.Add(key, floatValue);
+						}
+						else
+						{
+							_customParams.Add(key, value);
+						}
+					}
+					else
+					{
+						_customParams.Add(key, value);
+					}
+				}
+			}
+			
+			// print all customParams
+			foreach ( var item in _customParams )
+			{
+				Log.Info($"Key : {item.Key} | Value : {item.Value}");
 			}
 		}
 	}

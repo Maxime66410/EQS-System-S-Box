@@ -640,7 +640,7 @@
           "Center": "0,0,0",
           "IsTrigger": false,
           "Scale": "50.09993,50.20003,48.89979",
-          "Static": false,
+          "Static": true,
           "SurfaceVelocity": "0,0,0"
         }
       ]
@@ -664,6 +664,46 @@
         {
           "__type": "Sandbox.Eqscontroller",
           "__guid": "ae1ab13f-299c-4655-bc76-6032236ffa76"
+        }
+      ]
+    },
+    {
+      "__guid": "f8e324cf-1ac2-45be-b2d4-e57dc5028133",
+      "Flags": 0,
+      "Name": "w_crowbar",
+      "Position": "677.8824,-304.9173,72.45694",
+      "Rotation": "-0.08715561,0,0.9961947,0",
+      "Tags": "crowbar",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "97adf139-894e-46c0-ad47-9b70beaec33e",
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "Model": "models/weapons/sbox_melee_crowbar/w_crowbar.vmdl",
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        },
+        {
+          "__type": "Sandbox.NavMeshArea",
+          "__guid": "567623ec-87f0-4074-8010-a4ca1a73b852",
+          "IsBlocker": true
+        },
+        {
+          "__type": "Sandbox.BoxCollider",
+          "__guid": "1d7e2513-1e5f-4884-b296-ae6d7fb58b90",
+          "Center": "0,0,13.80001",
+          "IsTrigger": false,
+          "Scale": "0.8999826,-1.000041,26.7",
+          "Static": true,
+          "SurfaceVelocity": "0,0,0"
         }
       ]
     }
@@ -697,6 +737,7 @@
   "Title": "minimal",
   "Description": null,
   "__references": [
+    "facepunch.w_crowbar#38177",
     "pilgrim.terrystart#11488",
     "trend.chest1#28493"
   ],
