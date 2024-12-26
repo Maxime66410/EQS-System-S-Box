@@ -427,7 +427,7 @@
       "Name": "FakeTargetObject",
       "Position": "-285.8196,255.8098,0.01179854",
       "Rotation": "0,0,-0.7071067,0.7071068",
-      "Tags": "player",
+      "Tags": "steve",
       "Enabled": true,
       "Components": [
         {
@@ -511,7 +511,7 @@
               "Scale": 0.3,
               "TextAlignment": "Center",
               "TextScope": {
-                "Text": "Tag : \u0022player\u0022",
+                "Text": "Tag : \u0022steve\u0022",
                 "TextColor": "1,1,1,1",
                 "FontName": "Poppins",
                 "FontSize": 64,
