@@ -297,12 +297,41 @@ namespace Sandbox
 						case "TargetObjectWithTag": // If the user wants to search for an entity with a tag
 							if (parameter.Value is String targetEntityWithTag)
 							{
+								// Array of gameobjects
+								List<Sandbox.GameObject> gameObjectsArray = new List<GameObject>();
+								
 								foreach ( var item in Scene.GetAllObjects( true ).Where( X => X.Tags.Has( targetEntityWithTag ) ) )
 								{
 									if(item.IsValid())
 									{
+										gameObjectsArray.Add(item);
+									}
+									else
+									{
+										Log.Warning($"Invalid value for 'TargetObject'. Expected an Entity, got {parameter.Value?.GetType()}");
+									}
+								}
+								
+								// Check the most closest entity
+								if (gameObjectsArray.Count > 0)
+								{
+									float minDistance = 999999.0f; // Set the min distance
+									GameObject closestEntity = null; // Set the closest entity
+									
+									foreach (var entity in gameObjectsArray) // Check the closest entity
+									{
+										float distance = (Origin - entity.WorldPosition).Length; // Get the distance between the origin and the entity
+										if (distance < minDistance) // Check if the distance is less than the min distance
+										{
+											minDistance = distance;
+											closestEntity = entity;
+										}
+									}
+									
+									if (closestEntity.IsValid()) // Check if the entity is valid
+									{
 										Log.Info($"Searching for entity with tag: {targetEntityWithTag}");
-										Tests.Add(new TargetEntityTest(item) { Priority = customPriority });
+										Tests.Add(new TargetEntityTest(closestEntity) { Priority = customPriority });
 										Tests.RemoveAll(test => test is VisibilityTest);
 										Tests.RemoveAll(test => test is DistanceTest);
 									}
@@ -310,6 +339,10 @@ namespace Sandbox
 									{
 										Log.Warning($"Invalid value for 'TargetObject'. Expected an Entity, got {parameter.Value?.GetType()}");
 									}
+								}
+								else
+								{
+									Log.Warning($"No entity found with tag: {targetEntityWithTag}");
 								}
 							}
 							else

@@ -547,6 +547,63 @@
           ]
         },
         {
+          "__guid": "4287c1a9-1745-457f-8fda-eeed8b0c4b70",
+          "Flags": 0,
+          "Name": "Text (2)",
+          "Position": "-136.843,-712.2445,30.70535",
+          "Rotation": "-0.3043807,0.5272031,0.3966767,0.6870642",
+          "Enabled": true,
+          "Components": [
+            {
+              "__type": "Sandbox.TextRenderer",
+              "__guid": "db50ed4c-4175-4747-94f2-c5ac28e05370",
+              "__version": 1,
+              "BlendMode": "Normal",
+              "RenderOptions": {
+                "GameLayer": true,
+                "OverlayLayer": false,
+                "BloomLayer": false,
+                "AfterUILayer": false
+              },
+              "Scale": 0.3,
+              "TextAlignment": "Center",
+              "TextScope": {
+                "Text": "Tag : \u0022flower\u0022",
+                "TextColor": "1,1,1,1",
+                "FontName": "Poppins",
+                "FontSize": 64,
+                "FontWeight": 800,
+                "FontItalic": false,
+                "LineHeight": 1,
+                "LetterSpacing": 0,
+                "WordSpacing": 0,
+                "Outline": {
+                  "Enabled": true,
+                  "Size": 4,
+                  "Color": "0,0,0,1"
+                },
+                "Shadow": {
+                  "Enabled": true,
+                  "Size": 10,
+                  "Color": "0,0,0,1",
+                  "Offset": "4,4"
+                },
+                "OutlineUnder": {
+                  "Enabled": false,
+                  "Size": 4,
+                  "Color": "0,1,0,1"
+                },
+                "ShadowUnder": {
+                  "Enabled": true,
+                  "Size": 10,
+                  "Color": "0,0,0,1",
+                  "Offset": "4,4"
+                }
+              }
+            }
+          ]
+        },
+        {
           "__guid": "5decef9d-b085-4b16-9ca4-9b8849217fad",
           "Flags": 0,
           "Name": "Text (1)",
@@ -763,6 +820,81 @@
           "SurfaceVelocity": "0,0,0"
         }
       ]
+    },
+    {
+      "__guid": "86cbfbf2-455b-4f36-839a-95f8995c0f5c",
+      "Flags": 0,
+      "Name": "summer_flowers_03 (2)",
+      "Position": "432.8975,-121.1584,0.5954628",
+      "Tags": "flower",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "bc733a7f-dfd7-4a99-989a-582493231eea",
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "Model": "models/props/nature/flowers_01/summer_flowers_03.vmdl",
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        }
+      ]
+    },
+    {
+      "__guid": "fe39fd81-1624-48df-ad6f-3aa76a6ce0ce",
+      "Flags": 0,
+      "Name": "summer_flowers_03 (1)",
+      "Position": "-92.11194,74.11508,0.595475",
+      "Tags": "flower",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "2169687f-441b-4845-9b07-5b46216218b7",
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "Model": "models/props/nature/flowers_01/summer_flowers_03.vmdl",
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        }
+      ]
+    },
+    {
+      "__guid": "b0bb74a3-27db-4845-a6a4-f18774e402de",
+      "Flags": 0,
+      "Name": "summer_flowers_03",
+      "Position": "-359.5912,-410.8433,0.5958112",
+      "Tags": "flower",
+      "Enabled": true,
+      "Components": [
+        {
+          "__type": "Sandbox.ModelRenderer",
+          "__guid": "62033ca5-f49f-41c4-ab9d-fc84dfc25de0",
+          "BodyGroups": 18446744073709551615,
+          "CreateAttachments": false,
+          "Model": "models/props/nature/flowers_01/summer_flowers_03.vmdl",
+          "RenderOptions": {
+            "GameLayer": true,
+            "OverlayLayer": false,
+            "BloomLayer": false,
+            "AfterUILayer": false
+          },
+          "RenderType": "On",
+          "Tint": "1,1,1,1"
+        }
+      ]
     }
   ],
   "SceneProperties": {
@@ -794,6 +926,7 @@
   "Title": "minimal",
   "Description": null,
   "__references": [
+    "facepunch.summer_flowers_03#47034",
     "facepunch.w_crowbar#38177",
     "pilgrim.terrystart#11488",
     "trend.chest1#28493"
