@@ -23,9 +23,21 @@
 	
 	<div class="CustomTask">
 		<p>Press Enter to valid</p>
-		<TextEntry class="textentry" @ref=" InputBox" onsubmit="@InputFinished" onblur="@InputFinished" AllowEmojiReplace="@( true )"/>
+		<TextEntry class="textentry" @ref=" InputBox" onsubmit="@InputFinished" onblur="@InputFinished" AllowEmojiReplace="@( true )" placeholder="TargetObjectWithTag,crowbar"/>
 		<h2>Custom Task</h2>
+		<div class="CustomTaskSub">
+			<p>VisibilityOrigin : Vector3</p>
+			<p>DesiredDistance : float</p>
+			<p>Priority : High, Medium or Low</p>
+			<p>TargetObject : GameObject</p>
+			<p>TargetObjectWithTag : string</p>
+			<p>RadiusOverride : float</p>
+			<p>DebugMode : bool</p>
+			<p>List of Custom Params</p>
+		</div>
 	</div>
+	
+	
 	
 	<div class="Controller">
 		<button @onclick="@( () => CallWithAgent(0) )"> Stop Agent </button>

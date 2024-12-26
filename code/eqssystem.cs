@@ -460,7 +460,7 @@ namespace Sandbox
 				if(targetEntity.GetEntity().IsValid())
 				{
 					// Check if the agent has not reached the target entity and move the agent to the target entity
-					if((_agent.WorldPosition - targetEntity.GetEntity().WorldPosition).Length >= (StopDistance + 10.0f))
+					if((_agent.WorldPosition - targetEntity.GetEntity().WorldPosition).Length >= (StopDistance + 20.0f))
 					{
 						Log.Info($"Agent {_agent.GameObject.Name} has not reached the target entity. Moving to the target entity.");
 						// Execute the same query with the target entity

@@ -50,6 +50,16 @@ Eqscontroller
 			font-family: Roboto;
 			padding: 10px;
 		}
+		
+		>.CustomTaskSub
+		{
+			position: absolute;
+			bottom: 200px;
+			right: 32px;
+			flex-direction: column-reverse;
+			color : white;
+			text-stroke : 8px black;
+		}
 	}
 	
 	>.Controller
