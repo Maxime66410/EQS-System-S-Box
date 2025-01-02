@@ -30,11 +30,12 @@ namespace Sandbox
         private float _blockCheckInterval = 1.0f; // Block check interval
         private float _timeSinceLastCheck = 0.0f; // Time since last check
         private bool _isAgentActive = false; // Is agent active
+        public static Scene EditorScene; // EditorScene
 
         private NavMeshAgent _agent; // NavMeshAgent
         private CitizenAnimationHelper _animationHelper; // CitizenAnimationHelper
         private List<(Vector3 Point, float Score)> _cachedResults = new(); // Cached results
-        
+
         /********************/
         /* Function for EQS */
         /********************/
@@ -192,7 +193,7 @@ namespace Sandbox
         
         // Execute the query : Generate points, evaluate points with scores and return the results
         public void ExecuteQuery(VisibilityTest visibilityTest = null, DistanceTest distanceTest = null, Dictionary<string, object> customParams = null)
-		{
+        {
 			Origin = this.WorldPosition;
 			_timeSinceLastCheck = 0.0f;
 			Tests.Clear();
@@ -512,6 +513,7 @@ namespace Sandbox
         {
             _agent = GetComponent<NavMeshAgent>();
             _animationHelper = GetComponent<CitizenAnimationHelper>();
+            EditorScene = Scene.CreateEditorScene();
 
             if (!_agent.IsValid())
 			{
@@ -615,109 +617,109 @@ namespace Sandbox
 	            }
             }
         }
-    }
-
-    // Extension methods for the EqsQuery
-    public abstract class EqsTest 
-    {
-        public float Weight { get; set; } = 1.0f; // Weight - default 1 : Weight of the test
-        
-        public int Priority { get; set; } = 1; // Priority - default 0 : Priority of the test
-		
-        public abstract float GetScore(Vector3 point); // Get the score of the point
-    } 
-
-    // Visibility test : Check if the point is visible
-    public class VisibilityTest : EqsTest
-    {
-        private Vector3 _origin;
-
-        public VisibilityTest(Vector3 origin)
-        {
-            _origin = origin;
-        }
-
-        // Get the score of the point
-        public override float GetScore(Vector3 point)
-        {
-	        var score = 1.0f;
-	        score = Scene.CreateEditorScene().Trace.Ray(_origin, point).Run().Hit ? 0.0f : 1.0f; // Check if the point is visible
-	        if(Math.Abs(score - 1.0f) < 0.01f) score = Scene.CreateEditorScene().Trace.Ray(point, point - Vector3.Up * 10).Run().Hit ? 1.0f : 0.0f; // Check if the point is not in void
-            return score; // Return the score
-        }
-    }
-
-    
-    // Distance test : Check the distance between the point and the origin
-    public class DistanceTest : EqsTest
-    {
-        private Vector3 _origin;
-        private float _desiredDistance;
-
-        public DistanceTest(Vector3 origin, float desiredDistance)
-        {
-            _origin = origin;
-            _desiredDistance = desiredDistance;
-        }
-
-        // Get the score of the point
-        public override float GetScore(Vector3 point)
-        {
-            float distance = (_origin - point).Length; // Get the distance between the point and the origin
-            return 1.0f - MathF.Abs(_desiredDistance - distance) / _desiredDistance; // Return the score
-        }
-    }
-    
-    // Override radius test : Override the radius of the sphere
-    public class OverrideRadius : EqsTest
-    {
-	    private float _radiusoverride;
-
-	    public OverrideRadius(float desiredDistance)
+	        
+	    // Extension methods for the EqsQuery
+	    public abstract class EqsTest 
 	    {
-		    _radiusoverride = desiredDistance;
+	        public float Weight { get; set; } = 1.0f; // Weight - default 1 : Weight of the test
+	        
+	        public int Priority { get; set; } = 1; // Priority - default 0 : Priority of the test
+			
+	        public abstract float GetScore(Vector3 point); // Get the score of the point
+	    } 
+
+	    // Visibility test : Check if the point is visible
+	    public class VisibilityTest : EqsTest
+	    {
+		    private Vector3 _origin;
+
+		    public VisibilityTest(Vector3 origin)
+		    {
+			    _origin = origin;
+		    }
+
+		    // Get the score of the point
+		    public override float GetScore(Vector3 point)
+		    {
+			    var score = 1.0f;
+			    score = EditorScene.Trace.Ray(_origin, point).Run().Hit ? 0.0f : 1.0f; // Check if the point is visible
+			    if(Math.Abs(score - 1.0f) < 0.01f) score = EditorScene.Trace.Ray(point, point - Vector3.Up * 10).Run().Hit ? 1.0f : 0.0f; // Check if the point is not in void
+			    return score; // Return the score
+		    }
 	    }
 
-	    // Get the score of the point
-	    public override float GetScore(Vector3 point)
+	    
+	    // Distance test : Check the distance between the point and the origin
+	    public class DistanceTest : EqsTest
 	    {
-		    return _radiusoverride; // Return the score
-	    }
-    }
+	        private Vector3 _origin;
+	        private float _desiredDistance;
 
-    // Flatness test : Check if the point is flat
-    public class FlatnessTest : EqsTest
-    {
-        public override float GetScore(Vector3 point)
-        {
-            var trace = Scene.CreateEditorScene().Trace.Ray(point, point - Vector3.Up * 10).Run(); // Check if the point is flat
-            return trace.Hit && trace.Normal.Dot(Vector3.Up) > 0.9f ? 1.0f : 0.0f; // Return the score
-        }
-    }
-    
-    // Target entity test : Check the distance between the point and the target entity
-    public class TargetEntityTest : EqsTest
-    {
-	    private GameObject TargetEntity;
+	        public DistanceTest(Vector3 origin, float desiredDistance)
+	        {
+	            _origin = origin;
+	            _desiredDistance = desiredDistance;
+	        }
 
-	    public TargetEntityTest(GameObject targetEntity, float weight = 1.0f)
-	    {
-		    TargetEntity = targetEntity;
-		    Weight = weight;
+	        // Get the score of the point
+	        public override float GetScore(Vector3 point)
+	        {
+	            float distance = (_origin - point).Length; // Get the distance between the point and the origin
+	            return 1.0f - MathF.Abs(_desiredDistance - distance) / _desiredDistance; // Return the score
+	        }
 	    }
 	    
-	    public GameObject GetEntity()
+	    // Override radius test : Override the radius of the sphere
+	    public class OverrideRadius : EqsTest
 	    {
-		    return TargetEntity;
+		    private float _radiusoverride;
+
+		    public OverrideRadius(float desiredDistance)
+		    {
+			    _radiusoverride = desiredDistance;
+		    }
+
+		    // Get the score of the point
+		    public override float GetScore(Vector3 point)
+		    {
+			    return _radiusoverride; // Return the score
+		    }
 	    }
 
-	    public override float GetScore(Vector3 point)
+	    // Flatness test : Check if the point is flat
+	    public class FlatnessTest : EqsTest
 	    {
-		    if (!TargetEntity.IsValid()) return 0.0f;
+	        public override float GetScore(Vector3 point)
+	        {
+	            var trace = Scene.CreateEditorScene().Trace.Ray(point, point - Vector3.Up * 10).Run(); // Check if the point is flat
+	            return trace.Hit && trace.Normal.Dot(Vector3.Up) > 0.9f ? 1.0f : 0.0f; // Return the score
+	        }
+	    }
+	    
+	    // Target entity test : Check the distance between the point and the target entity
+	    public class TargetEntityTest : EqsTest
+	    {
+		    private GameObject TargetEntity;
 
-		    // Score based on distance to the target entity
-		    float distance = (TargetEntity.WorldPosition - point).Length;
-		    return distance > 0 ? 2.0f / distance : 0.0f; // Return the score
+		    public TargetEntityTest(GameObject targetEntity, float weight = 1.0f)
+		    {
+			    TargetEntity = targetEntity;
+			    Weight = weight;
+		    }
+		    
+		    public GameObject GetEntity()
+		    {
+			    return TargetEntity;
+		    }
+
+		    public override float GetScore(Vector3 point)
+		    {
+			    if (!TargetEntity.IsValid()) return 0.0f;
+
+			    // Score based on distance to the target entity
+			    float distance = (TargetEntity.WorldPosition - point).Length;
+			    return distance > 0 ? 2.0f / distance : 0.0f; // Return the score
+		    }
 	    }
     }
 }

@@ -408,7 +408,7 @@
         {
           "__type": "Sandbox.EqsQuery",
           "__guid": "14f78a80-50d5-44d7-bdee-1745f2f5e2a8",
-          "bDebugMode": true,
+          "bDebugMode": false,
           "bUse2D": true,
           "DesiredDistance": 211,
           "minScoreThreshold": 0.8,

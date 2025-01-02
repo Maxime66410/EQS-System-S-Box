@@ -23,7 +23,7 @@
 	
 	<div class="CustomTask">
 		<p>Press Enter to valid</p>
-		<TextEntry class="textentry" @ref=" InputBox" onsubmit="@InputFinished" onblur="@InputFinished" AllowEmojiReplace="@( true )" placeholder="TargetObjectWithTag,crowbar"/>
+		<TextEntry class="textentry" @ref="InputBox" onsubmit="@InputFinished" onblur="@InputFinished" AllowEmojiReplace="@( true )" placeholder="TargetObjectWithTag,crowbar"/>
 		<h2>Custom Task</h2>
 		<div class="CustomTaskSub">
 			<p>VisibilityOrigin : Vector3</p>
@@ -153,7 +153,7 @@
 		}
 	}
 	
-	private List<EqsTest> GetTaskFromTarget()
+	private List<EqsQuery.EqsTest> GetTaskFromTarget()
 	{
 		if ( TargetEqs.IsValid() )
 		{
