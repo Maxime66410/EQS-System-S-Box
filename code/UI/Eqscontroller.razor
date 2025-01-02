@@ -6,7 +6,7 @@
 <root>
 	<div class="Target">
 		<p>Target Name : @TargetEqs.Name</p>
-		<p>Target Target Location : @GetTargetLocation()</p>
+		<p>Agent Target Location : @GetTargetLocation()</p>
 		<p>Target Transform : @TargetEqs.WorldTransform</p>
 	</div>
 	
@@ -22,11 +22,12 @@
 	</div>
 	
 	<div class="CustomTask">
+		<p class="littlecustomtask">By Maxime66410 - Version : 1.0.0</p>
 		<p>Press Enter to valid</p>
-		<TextEntry class="textentry" @ref="InputBox" onsubmit="@InputFinished" onblur="@InputFinished" AllowEmojiReplace="@( true )" placeholder="TargetObjectWithTag,crowbar"/>
+		<TextEntry class="textentry" @ref=" InputBox" onsubmit="@InputFinished" onblur="@InputFinished" AllowEmojiReplace="@( true )" placeholder="TargetObjectWithTag,crowbar"/>
 		<h2>Custom Task</h2>
 		<div class="CustomTaskSub">
-			<p>VisibilityOrigin : Vector3</p>
+			<p>VisibilityOrigin : Vector3(0.0,0.0,0.0)</p>
 			<p>DesiredDistance : float</p>
 			<p>Priority : High, Medium or Low</p>
 			<p>TargetObject : GameObject</p>
@@ -37,8 +38,6 @@
 		</div>
 	</div>
 	
-	
-	
 	<div class="Controller">
 		<button @onclick="@( () => CallWithAgent(0) )"> Stop Agent </button>
 		<button @onclick="@( () => CallWithAgent(1) )"> Stop All Tasks </button>
@@ -46,11 +45,54 @@
 		<button @onclick="@( () => CallWithAgent(3) )"> Random Path </button>
 		<button @onclick="@( () => CallWithAgent(4) )"> Send Custom Task </button>
 	</div>
+	
+	<div class="OptionButton">
+		<button @onclick="@( () => SettingsWindowsVisibility() )"> ⚙️ </button>
+	</div>
+
+	<div class="modal @_windowhidden">
+		<div class="modal-title">
+			<p>Settings</p>
+			<button class="close-button" @onclick="@( () => SettingsWindowsVisibility() )">✖️</button>
+		</div>
+		<div class="modal-content">
+			<!-- List of settings -->
+			<ul>
+				<li><p>Debug Mode</p> <Checkbox @ref="_debugModeCheckboxode" Value:bind=@_debugmode text="(@_debugModeCheckboxode.Checked)"></Checkbox></li>
+				<li><p>Geometry 2D</p> <Checkbox @ref="_geometry2d" text="(@_geometry2d.Checked)"/></li>
+				<li><p>Radius</p> <SliderControl @ref="_radius" min="1" max="500" value="380"/><p class="valueSlider">@_radius.Value</p></li>
+				<li><p>Step</p> <SliderControl @ref="_step" min="1" max="50" value="33"/><p class="valueSlider">@_step.Value</p></li>
+				<li><p>Desired Distance</p> <SliderControl @ref="_desiredDistance" min="1" max="500" value="211"/><p class="valueSlider">@_desiredDistance.Value</p></li>
+				<li><p>Min Score Threshold</p> <SliderControl @ref="_minScoreThreshold" min="0.0" max="1.0" value="0.8"/><p class="valueSlider">@_minScoreThreshold.Value</p></li>
+				<li><p>Stop Distance</p> <SliderControl @ref="_stopDistance" min="1" max="50" value="30"/><p class="valueSlider">@_stopDistance.Value</p></li>
+			</ul>
+			
+			<div class="modal-footer">
+				<button class="save-button" @onclick="@( () => ApplySettings() )">Push</button>
+				<button class="reset-button" @onclick="@( () => ResetSettings() )">Reset</button>
+			</div>
+			
+			<p class="logeqs @_errorlogcolor">@_errorlog</p>
+		</div>
+	</div>
 </root>
 
 @code
 {
 	TextEntry InputBox;
+	Checkbox _debugModeCheckboxode;
+	Checkbox _geometry2d;
+	SliderControl _radius;
+	SliderControl _step;
+	SliderControl _desiredDistance;
+	SliderControl _minScoreThreshold;
+	SliderControl _stopDistance;
+	
+	string _windowhidden = "hidden";
+	bool _debugmode = false;
+	string _errorlog = "";
+	string _errorlogcolor = "logeqsgreen";
+	
 
 	Dictionary<string, object> _customParams = new Dictionary<string, object>
 	{
@@ -93,6 +135,18 @@
 			}
 		}
 	}
+	
+	private void SettingsWindowsVisibility()
+	{
+		if(_windowhidden == "hidden")
+		{
+			_windowhidden = "";
+		}
+		else
+		{
+			_windowhidden = "hidden";
+		}
+	}
 
 	private void InputFinished()
 	{
@@ -108,7 +162,7 @@
 			// Check all lines and add to customParams dictionary 
 			foreach ( var line in text.Split('\n') )
 			{
-				var parts = line.Split(',');
+				var parts = line.Split(new char[] { ',' }, 2);
 				if ( parts.Length != 2 ) continue;
 				
 				var key = parts[0].Trim();
@@ -127,20 +181,36 @@
 				}
 				else
 				{
-					if(value.Contains("f"))
+					// Check if is a Vector3
+					if ( value.Contains("Vector3") )
 					{
-						if ( float.TryParse(value.Replace("f", ""), out float floatValue) )
+						var vector3 = value.Replace("Vector3", "").Replace("(", "").Replace(")", "").Split(',');
+						if ( vector3.Length == 3 )
 						{
-							_customParams.Add(key, floatValue);
+							Log.Info("vector3");
+							if ( float.TryParse(vector3[0], out float x) && float.TryParse(vector3[1], out float y) && float.TryParse(vector3[2], out float z) )
+							{
+								_customParams.Add(key, new Vector3(x, y, z));
+							}
+						}
+					}
+					else
+					{
+						if(value.Contains("f"))
+						{
+							if ( float.TryParse(value.Replace("f", ""), out float floatValue) )
+							{
+								_customParams.Add(key, floatValue);
+							}
+							else
+							{
+								_customParams.Add(key, value);
+							}
 						}
 						else
 						{
 							_customParams.Add(key, value);
 						}
-					}
-					else
-					{
-						_customParams.Add(key, value);
 					}
 				}
 			}
@@ -185,6 +255,117 @@
 		return Vector3.Zero;
 	}
 
+	public void ResetSettings()
+	{
+		_debugModeCheckboxode.Checked = false;
+		_geometry2d.Checked = true;
+		_radius.Value = 380;
+		_step.Value = 33;
+		_desiredDistance.Value = 211;
+		_minScoreThreshold.Value = 0.8f;
+		_stopDistance.Value = 30;
+
+		if ( TargetEqs.IsValid() )
+		{
+			if(TargetEqs.GetComponent<EqsQuery>().IsValid())
+			{
+				TargetEqs.GetComponent<EqsQuery>().bDebugMode = false;
+				TargetEqs.GetComponent<EqsQuery>().bUse2D = true;
+				TargetEqs.GetComponent<EqsQuery>().Radius = 380;
+				TargetEqs.GetComponent<EqsQuery>().Step = 33;
+				TargetEqs.GetComponent<EqsQuery>().DesiredDistance = 211;
+				TargetEqs.GetComponent<EqsQuery>().minScoreThreshold = 0.8f;
+				TargetEqs.GetComponent<EqsQuery>().StopDistance = 30;
+				
+				_errorlog = "[EqsQuery] Reset settings success";
+				_errorlogcolor = "logeqsgreen";
+			}
+			else
+			{
+				_errorlog = "[EqsQuery] EqsQuery is not valid";
+				_errorlogcolor = "logeqsred";
+			}
+		}
+		else
+		{
+			_errorlog = "[EqsQuery] TargetEqs is not valid";
+			_errorlogcolor = "logeqsred";
+		}
+	}
+
+	public void ApplySettings()
+	{
+		if ( TargetEqs.IsValid() )
+		{
+			if ( TargetEqs.GetComponent<EqsQuery>().IsValid() )
+			{
+				TargetEqs.GetComponent<EqsQuery>().bDebugMode = _debugModeCheckboxode.Checked;
+				TargetEqs.GetComponent<EqsQuery>().bUse2D = _geometry2d.Checked;
+				TargetEqs.GetComponent<EqsQuery>().Radius = _radius.Value;
+				TargetEqs.GetComponent<EqsQuery>().Step = _step.Value;
+				TargetEqs.GetComponent<EqsQuery>().DesiredDistance = _desiredDistance.Value;
+				TargetEqs.GetComponent<EqsQuery>().minScoreThreshold = _minScoreThreshold.Value;
+				TargetEqs.GetComponent<EqsQuery>().StopDistance = _stopDistance.Value;
+				
+				_errorlog = "[EqsQuery] Apply settings success";
+				_errorlogcolor = "logeqsgreen";
+			}
+			else
+			{
+				_errorlog = "[EqsQuery] EqsQuery is not valid";
+				_errorlogcolor = "logeqsred";
+			}
+		}
+		else
+		{
+			_errorlog = "[EqsQuery] TargetEqs is not valid";
+			_errorlogcolor = "logeqsred";
+		}
+	}
+
+	public void AsyncStart()
+	{
+		if(_debugModeCheckboxode != null)
+		{
+			_debugModeCheckboxode.Checked = TargetEqs.GetComponent<EqsQuery>().bDebugMode;
+		}
+				
+		if(_geometry2d != null)
+		{
+			_geometry2d.Checked = TargetEqs.GetComponent<EqsQuery>().bUse2D;
+		}
+		
+		if(_radius != null)
+		{
+			_radius.Value = TargetEqs.GetComponent<EqsQuery>().Radius;
+			_radius.Step = 0.01f;
+		}
+		
+		if(_step != null)
+		{
+			_step.Value = TargetEqs.GetComponent<EqsQuery>().Step;
+			_step.Step = 0.1f;
+		}
+		
+		if(_desiredDistance != null)
+		{
+			_desiredDistance.Value = TargetEqs.GetComponent<EqsQuery>().DesiredDistance;
+			_desiredDistance.Step = 0.01f;
+		}
+		
+		if(_minScoreThreshold != null)
+		{
+			_minScoreThreshold.Value = TargetEqs.GetComponent<EqsQuery>().minScoreThreshold;
+			_minScoreThreshold.Step = 0.01f;
+		}
+		
+		if(_stopDistance != null)
+		{
+			_stopDistance.Value = TargetEqs.GetComponent<EqsQuery>().StopDistance;
+			_stopDistance.Step = 0.01f;
+		}
+	}
+
 	protected override void OnStart()
 	{
 		if ( !TargetEqs.IsValid() )
@@ -193,6 +374,12 @@
 			{
 				TargetEqs = item;
 				break;
+			}
+			
+			if( TargetEqs.IsValid() )
+			{
+				// Initialize settings
+				Invoke( 1.0f, () => AsyncStart() );
 			}
 		}
 	}
